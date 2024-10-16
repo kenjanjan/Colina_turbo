@@ -23,7 +23,7 @@ jobs:
       # Build Docker image for the backend (NestJS)
       - name: Build backend Docker image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-backend ./apps/nest
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-backend ./apps/nestjs
 
       # Build Docker image for the frontend (Next.js)
       - name: Build frontend Docker image
