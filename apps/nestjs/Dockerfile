@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as the base image
-FROM node:18-alpine
+FROM node:18
 
 # Set working directory
 WORKDIR /app
@@ -15,6 +15,9 @@ COPY . .
 
 # Rebuild bcrypt to fix the binary issue
 RUN npm rebuild bcrypt --build-from-source
+
+# Run the build step to compile TypeScript (if necessary)
+RUN npm run build
 
 # Expose the port that your NestJS app listens on
 EXPOSE 3000
