@@ -22,10 +22,12 @@ import { AppointmentsFiles } from 'src/appointmentsFiles/entities/appointmentsFi
 import { AppointmentFilesService } from 'src/appointmentsFiles/appointmentsFiles.service';
 import { OrdersLaboratory } from 'src/orders_laboratory/entities/orders_laboratory.entity';
 import { OrdersLaboratoryService } from 'src/orders_laboratory/orders_laboratory.service';
+import { OrdersDietary } from 'src/orders_dietary/entities/orders_dietary.entity';
+import { OrdersDietaryService } from 'src/orders_dietary/orders_dietary.service';
 @Module({
-  imports: [TypeOrmModule.forFeature([Prescriptions, Patients, MedicationLogs, PrescriptionsFiles,MedicationLogs, EmergencyContacts, Orders, OrdersPrescriptions,Appointments, AppointmentsFiles,OrdersLaboratory])],
+  imports: [TypeOrmModule.forFeature([Prescriptions, Patients, MedicationLogs, PrescriptionsFiles,MedicationLogs, EmergencyContacts, Orders, OrdersPrescriptions,Appointments, AppointmentsFiles,OrdersLaboratory, OrdersDietary])],
 
-  providers: [PrescriptionsResolver, IdService, EmergencyContactsService,PrescriptionsService, PatientsService,PrescriptionFilesService, OrdersService, OrdersPrescriptionsService, AppointmentsService, AppointmentFilesService, OrdersLaboratoryService],
+  providers: [PrescriptionsResolver, IdService, EmergencyContactsService,PrescriptionsService, PatientsService,PrescriptionFilesService, OrdersService, OrdersPrescriptionsService, AppointmentsService, AppointmentFilesService, OrdersDietaryService, OrdersLaboratoryService],
   controllers: [PrescriptionsController],
 })
 export class PrescriptionsModule { }

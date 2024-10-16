@@ -29,11 +29,23 @@ export class OrdersDietary {
 
   @Column()
   @Field()
-  laboratoryId: number;
+  orderId: number;
 
   @Column()
   @Field()
-  orderId: number;
+  patientId: number;
+
+  @Column({ nullable: true })
+  @Field()
+  notes: string;
+
+  @Column({ nullable: true })
+  @Field()
+  dietary: string;
+  
+  @Column({ nullable: true })
+  @Field()
+  status: string;
 
 
   //orderdate will be from orders table which is orderdate and is from appointment date after the apt
@@ -50,7 +62,7 @@ export class OrdersDietary {
   @Field()
   deletedAt: string;
 
-  
+
   @OneToOne(() => Orders, (order) => order.orders_dietary)
   @JoinColumn({ name: 'orderId' })
   order?: Orders;

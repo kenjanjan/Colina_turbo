@@ -13,7 +13,7 @@ export async function fetchPrescriptionByPatient(
   perPage: number,
   filterStatusFromCheck: string[],
 
-  router: any // Pass router instance as a parameter
+  router: any, // Pass router instance as a parameter
 ): Promise<any> {
   const requestData = {
     patientUuid: patientUuid.toUpperCase(),
@@ -23,7 +23,6 @@ export async function fetchPrescriptionByPatient(
     sortOrder: sortOrder,
     perPage: perPage,
     filterStatus: filterStatusFromCheck,
-
   };
   try {
     console.log("searchPatient", requestData);
@@ -39,7 +38,7 @@ export async function fetchPrescriptionByPatient(
     const response = await axios.post(
       `${apiUrl}/prescriptions/list/${patientUuid}`,
       requestData,
-      { headers }
+      { headers },
     );
 
     console.log(response.data);
@@ -53,7 +52,7 @@ export async function fetchPrescriptionByPatient(
         // Handle network error
         console.error("Connection refused or network error occurred.");
         return Promise.reject(
-          new Error("Connection refused or network error occurred.")
+          new Error("Connection refused or network error occurred."),
         );
       }
       if (axiosError.response?.status === 401) {
@@ -71,12 +70,12 @@ export async function createPrescriptionOfPatient(
   patientId: string,
   formData: any,
   appointmentUuid: string,
-  router: any
+  router: any,
 ): Promise<any> {
   const formBody = {
     createPrescriptionsInput: formData,
     appointmentUuid: appointmentUuid,
-  }
+  };
   try {
     const accessToken = getAccessToken();
     if (!accessToken) {
@@ -91,7 +90,7 @@ export async function createPrescriptionOfPatient(
     const response = await axios.post(
       `${apiUrl}/prescriptions/${patientId}`,
       formBody,
-      { headers }
+      { headers },
     );
     const createdPrescription = response.data;
 
@@ -110,7 +109,7 @@ export async function createPrescriptionOfPatient(
 
 export async function addPrescriptionFile(
   prescriptionUuid: string,
-  formData: FormData
+  formData: FormData,
 ): Promise<any> {
   try {
     const accessToken = getAccessToken();
@@ -126,13 +125,13 @@ export async function addPrescriptionFile(
     const response = await axios.post(
       `${apiUrl}/prescriptions/${prescriptionUuid}/uploadfiles`,
       formData,
-      { headers }
+      { headers },
     );
 
     const prescriptionFileInserted = response.data;
     console.log(
       "Prescription files uploaded successfully:",
-      prescriptionFileInserted
+      prescriptionFileInserted,
     );
 
     return prescriptionFileInserted;
@@ -150,7 +149,7 @@ export async function addPrescriptionFile(
 
 export async function deletePrescriptionFile(
   prescriptionUuid: string,
-  fileUUID: string
+  fileUUID: string,
 ): Promise<any> {
   try {
     const accessToken = getAccessToken();
@@ -165,7 +164,7 @@ export async function deletePrescriptionFile(
     const response = await axios.patch(
       `${apiUrl}/prescriptions/files/delete/${fileUUID}`,
       {},
-      { headers }
+      { headers },
     );
     console.log(response, "prescriptionFileDeleted");
 
@@ -179,7 +178,7 @@ export async function deletePrescriptionFile(
 export async function updatePrescriptionOfPatient(
   prescriptionUuid: string,
   formData: any,
-  router: any
+  router: any,
 ): Promise<any> {
   try {
     const accessToken = getAccessToken();
@@ -194,7 +193,7 @@ export async function updatePrescriptionOfPatient(
     const response = await axios.patch(
       `${apiUrl}/prescriptions/update/${prescriptionUuid}`,
       formData,
-      { headers }
+      { headers },
     );
     const updatedPrescription = response.data;
 
@@ -211,7 +210,7 @@ export async function updatePrescriptionOfPatient(
 // FILES
 export async function fetchPrescriptionFiles(
   prescriptionUuid: string,
-  router: any
+  router: any,
 ): Promise<any> {
   const requestData = {
     prescriptionUuid: prescriptionUuid.toUpperCase(),
@@ -228,7 +227,7 @@ export async function fetchPrescriptionFiles(
 
     const response = await axios.get(
       `${apiUrl}/prescriptions/${prescriptionUuid}/files`,
-      { headers }
+      { headers },
     );
 
     return response;
@@ -240,13 +239,13 @@ export async function fetchPrescriptionFiles(
     }
     console.error(
       "Error fetching prescription files:",
-      (error as AxiosError).message
+      (error as AxiosError).message,
     );
   }
 }
 
 export async function getCurrentPrescriptionFileCountFromDatabase(
-  prescriptionUuid: string
+  prescriptionUuid: string,
 ): Promise<any> {
   try {
     const accessToken = getAccessToken();
@@ -260,7 +259,7 @@ export async function getCurrentPrescriptionFileCountFromDatabase(
 
     const response = await axios.get(
       `${apiUrl}/prescriptions/${prescriptionUuid}/files/count`,
-      { headers }
+      { headers },
     );
 
     return response.data;
@@ -271,7 +270,36 @@ export async function getCurrentPrescriptionFileCountFromDatabase(
     }
     console.error(
       "Error fetching prescription files count:",
-      (error as AxiosError).message
+      (error as AxiosError).message,
     );
+  }
+}
+
+export async function createDietaryOrder(
+  patientId: string,
+  formData: any,
+): Promise<any> {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      throw new Error("Unauthorized Access");
+    }
+
+    const headers = {
+      Authorization: `Bearer ${accessToken}`,
+    };
+
+    // Make the API request to create the allergy
+    const response = await axios.post(
+      `${apiUrl}/orders/create-dietary-order/${patientId}`,
+      formData,
+      { headers },
+    );
+    const createdDietaryOrder = response.data;
+
+    return createdDietaryOrder;
+  } catch (error) {
+    console.error("Error creating Dietary order:", error);
+    throw error; // Rethrow the error to handle it in the component
   }
 }

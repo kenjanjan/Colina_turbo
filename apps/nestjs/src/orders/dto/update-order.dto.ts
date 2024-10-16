@@ -6,4 +6,5 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto) {
     orderDate: string;
     appointmentId: number;
     orderType: string;
+    status: string;
 }

@@ -5,5 +5,6 @@ export class CreateOrdersDietaryDto {
     status: string;
     notes: string;
     orderId: number;
+    patientId: number;
   
 }

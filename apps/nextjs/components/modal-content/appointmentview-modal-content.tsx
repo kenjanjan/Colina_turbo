@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   fetchAppointmentFiles,
   addAppointmentFile,
   getCurrentAppointmentFileCountFromDatabase,
   deleteAppointmentFile,
+  fetchAppointmentsByPatient,
 } from "@/app/api/appointments-api/appointments.api";
 import { useToast } from "../ui/use-toast";
 import { ConfirmationModal } from "./confirmation-modal-content";
@@ -19,6 +20,7 @@ import Link from "next/link";
 interface ModalProps {
   isModalOpen: (isOpen: boolean) => void;
   appointmentData: any;
+  appointmentId?: string;
   isView: boolean;
 }
 interface AppointmentFile {
@@ -31,6 +33,7 @@ interface AppointmentFile {
 export const AppointmenViewModalContent = ({
   isView,
   appointmentData,
+  appointmentId,
   isModalOpen,
 }: ModalProps) => {
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
@@ -38,7 +41,12 @@ export const AppointmenViewModalContent = ({
   const onSuccess = () => {
     setIsSuccessOpen(true);
   };
-
+const params = useParams<{
+    id: any;
+    tag: string;
+    item: string;
+  }>();
+  const patientId = params.id.toUpperCase();
   const [appointmentUuid, setAppointmentUuid] = useState("");
   const [isUpdated, setIsUpdated] = useState(false);
   const [AppointmentFiles, setAppointmentFiles] = useState<AppointmentFile[]>(

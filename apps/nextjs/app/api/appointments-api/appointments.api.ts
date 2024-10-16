@@ -271,3 +271,12 @@ export async function getCurrentAppointmentFileCountFromDatabase(
     );
   }
 }
+
+
+
+
+///ORDERS FOR DIETARY API
+
+
+
+

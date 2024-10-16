@@ -122,9 +122,9 @@ export class EmergencyContactsService {
 
   async updateEmergencyContacts(
     id: string,
-    updateLabResultsInput: UpdateEmergencyContactsInput,
+    updateEmergencyInput: UpdateEmergencyContactsInput,
   ): Promise<EmergencyContacts> {
-    const { ...updateData } = updateLabResultsInput;
+    const { ...updateData } = updateEmergencyInput;
     const emergencyContacts = await this.emergencyContactsRepository.findOne({
       where: { uuid: id },
     });

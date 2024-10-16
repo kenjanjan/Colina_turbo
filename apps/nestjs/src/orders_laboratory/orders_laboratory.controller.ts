@@ -35,6 +35,6 @@ export class OrdersLaboratoryController {
       
       return this.ordersLaboratoryService.findLaboratoryOrdersByPatientUuid(patientUuid, term, filterStatus, sortBy, sortOrder, page, perPage);
   }
-  
+
 }
   

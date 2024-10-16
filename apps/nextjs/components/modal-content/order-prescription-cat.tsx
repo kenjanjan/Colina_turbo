@@ -1,13 +1,25 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast, useToast } from "../ui/use-toast";
-import { cn } from "@/lib/utils";
+import { cn, formatCreatedAtDate } from "@/lib/utils";
 import {
   addPrescriptionFile,
   createPrescriptionOfPatient,
 } from "@/app/api/prescription-api/prescription.api";
 import { useParams, useRouter } from "next/navigation";
 import { ToastAction } from "../ui/toast";
+
+interface Modalprops {
+  isEdit?: boolean;
+  data?: any;
+  label?: string;
+  isOpen?: boolean;
+  setErrorMessage?: any;
+  setIsUpdated: any;
+  isModalOpen: (isOpen: boolean) => void;
+  onSuccess: () => void;
+  onFailed: () => void;
+}
 
 const PrescriptionOrderCategory = ({
   data,
@@ -52,15 +64,16 @@ const PrescriptionOrderCategory = ({
   const [fileNames, setFileNames] = useState<string[]>([]);
   const [fileTypes, setFileTypes] = useState<string[]>([]);
   const [formData, setFormData] = useState({
-    prescriptionType: "",
-    name: "",
-    frequency: "",
-    interval: "",
-    dosage: "",
-    dateIssued: "",
-    startDate: "",
-    endDate: "",
-    status: "",
+    patientUuid: patientId,
+    prescriptionType: data?.p_prescriptionType || "",
+    name: data?.p_name || "",
+    frequency: data?.p_frequency || "",
+    interval: data?.p_interval || "",
+    dosage: data?.p_dosage || "",
+    dateIssued: data?.p_dateIssued || "",
+    startDate: data?.p_startdate || "",
+    endDate: data?.p_enddate || "",
+    status: data?.p_status || "",
   });
 
   useEffect(() => {
@@ -69,8 +82,6 @@ const PrescriptionOrderCategory = ({
       prescriptionType: isPrn ? "PRN" : "ASCH",
     }));
   }, [isPrn]);
-
-  console.log(formData, "formData");
 
   const toggleMaxSizeToast = (): void => {
     setIsSubmitted(false);
@@ -148,13 +159,13 @@ const PrescriptionOrderCategory = ({
     setIsSubmitted(false);
   };
 
-  const parseDate = (dateString: any) => {
-    const dateObj = new Date(dateString);
-    const year = dateObj.getFullYear();
-    const month = (dateObj.getMonth() + 1).toString().padStart(2, "0"); // Adding 1 because getMonth() is zero-indexed
-    const day = dateObj.getDate().toString().padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
+  // const parseDate = (dateString: any) => {
+  //   const dateObj = new Date(dateString);
+  //   const year = dateObj.getFullYear();
+  //   const month = (dateObj.getMonth() + 1).toString().padStart(2, "0"); // Adding 1 because getMonth() is zero-indexed
+  //   const day = dateObj.getDate().toString().padStart(2, "0");
+  //   return `${year}-${month}-${day}`;
+  // };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -180,7 +191,6 @@ const PrescriptionOrderCategory = ({
         router,
       );
       console.log("Prescription added successfully:", prescription);
-
       // Iterate through each selected file
       if (selectedFiles.length > 0) {
         for (let i = 0; i < selectedFiles.length; i++) {
@@ -196,7 +206,6 @@ const PrescriptionOrderCategory = ({
             prescription.uuid,
             prescriptionFileFormData,
           );
-
           console.log(
             `Prescription FILE ${fileNames[i]} added successfully:`,
             addPrescriptionFiles,
@@ -207,6 +216,7 @@ const PrescriptionOrderCategory = ({
       }
       // Reset form data
       setFormData({
+        patientUuid: patientId,
         prescriptionType: "",
         name: "",
         frequency: "",
@@ -258,26 +268,27 @@ const PrescriptionOrderCategory = ({
     }));
   };
 
+
   return (
     <form onSubmit={handleSubmit}>
       {!isPrn && (
         <p
           className="sub-title mb-2 ml-auto w-fit cursor-pointer text-end"
-          onClick={() => {
-            setIsPrn(true);
-          }}
+          // onClick={() => {
+          //   setIsPrn(true);
+          // }}
         >
-          Go to Prescription PRN
+          {/* Go to Prescription PRN */}
         </p>
       )}
       {isPrn && (
         <p
           className="sub-title mb-2 ml-auto w-fit cursor-pointer"
-          onClick={() => {
-            setIsPrn(false);
-          }}
+          // onClick={() => {
+          //   setIsPrn(false);
+          // }}
         >
-          Go to Prescription Scheduled
+          {/* Go to Prescription Scheduled */}
         </p>
       )}
       <div className="grid grid-cols-2 gap-x-5 gap-y-2">
@@ -300,15 +311,16 @@ const PrescriptionOrderCategory = ({
         </div>
         <div className="flex w-full flex-col gap-2">
           <h1 className="required-field text-[20px] font-medium">Frequency</h1>
-          <div className="flex relative">
+          <div className="relative flex">
             <select
               required
+              disabled={tab ? tab.length > 0 : false}
               className="block h-12 w-full cursor-pointer rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
               name="frequency"
-              value={formData.frequency}
+              value={data.p_frequency || formData.frequency}
               onChange={handleDropDownChange}
             >
-              <option value="">Select Frequency</option>
+              <option value=""> Choose Frequency</option>
               <option value="Once Daily">Once Daily</option>
               <option value="Twice Daily">Twice Daily</option>
               <option value="Thrice Daily">Thrice Daily</option>
@@ -352,7 +364,7 @@ const PrescriptionOrderCategory = ({
             />
           </div>
         </div>
-        {!isPrn && (
+        {isPrn && (
           <div className="flex w-full flex-col gap-2">
             <h1 className="required-field text-[20px] font-medium">
               Date Issued
@@ -364,7 +376,7 @@ const PrescriptionOrderCategory = ({
                 readOnly={tab ? tab.length > 0 : false}
                 className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
                 name="dateIssued"
-                value={parseDate(formData.dateIssued)}
+                value={formatCreatedAtDate(formData.dateIssued)}
                 onChange={handleChange}
               />
               <Image
@@ -378,187 +390,205 @@ const PrescriptionOrderCategory = ({
           </div>
         )}
 
-        <div className="flex w-full flex-col gap-2">
-          <h1 className="required-field text-[20px] font-medium">Status</h1>
-          <div className="relative">
-            <select
-              required
-              value={formData.status}
-              name="status"
-              onChange={handleDropDownChange}
-              disabled={tab ? tab.length > 0 : false}
-              className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
-            >
-              <option value="">Select Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-            <Image
-              className="pointer-events-none absolute right-0 top-0 mr-3 mt-3"
-              width={20}
-              height={20}
-              src={"/svgs/chevron-up.svg"}
-              alt={""}
-            />
+        {tab && (
+          <div className="flex w-full flex-col gap-2">
+            <h1 className="required-field text-[20px] font-medium">Status</h1>
+            {/* here */}
+            <div className="relative">
+              <select
+                required
+                // value={formData.status}
+                value={data.p_status || formData.status}
+                name="status"
+                onChange={handleDropDownChange}
+                disabled={tab ? tab.length > 0 : false}
+                className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+              >
+                <option value="">Choose Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+              <Image
+                className="pointer-events-none absolute right-0 top-0 mr-3 mt-3"
+                width={20}
+                height={20}
+                src={"/svgs/chevron-up.svg"}
+                alt={""}
+              />
+            </div>
+            {/* here */}
           </div>
-        </div>
-        {formFiles.length === 5 ? (
-          <div></div>
-        ) : (
-          <div className={cn("col-span-2 mt-5", { "col-span-1": isPrn })}>
-            <label
-              htmlFor="imageUpload"
-              className={cn(
-                "relative flex h-[99px] w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-[#007C85] bg-[#daf3f5] text-center font-medium text-[#101828]",
-                { "h-[62px]": isPrn },
-              )}
-            >
-              <div className="flex flex-col items-center justify-center">
-                <div className="flex">
-                  {selectedFileNames.length > 0 ? (
-                    // If files are selected, display filein.svg
-                    <Image
-                      className="mr-1"
-                      width={21.51}
-                      height={20}
-                      src={"/svgs/filein.svg"}
-                      alt=""
-                    />
-                  ) : (
-                    // If no files are selected, display folder-add.svg
-                    <Image
-                      className="mr-1"
-                      width={21.51}
-                      height={20}
-                      src={"/svgs/folder-add.svg"}
-                      alt=""
-                    />
+        )}
+        {!tab && (
+          <div>
+            {formFiles.length === 5 ? (
+              <div></div>
+            ) : (
+              <div className={cn("col-span-2 mt-5", { "col-span-1": isPrn })}>
+                <label
+                  htmlFor="imageUpload"
+                  className={cn(
+                    "relative flex h-[99px] w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-[#007C85] bg-[#daf3f5] text-center font-medium text-[#101828]",
+                    { "h-[62px]": isPrn },
                   )}
-                  <div className="flex">
-                    <p className="mt-2 text-[15px] font-medium">
-                      Upload or Attach Files or{" "}
-                      <span className="ml-1 mt-2 text-[15px] font-medium text-blue-500 underline decoration-solid">
-                        Browse
-                      </span>
-                    </p>
-                  </div>
-                </div>
-                <span className="w-[200px] truncate text-[10px] font-normal text-[#667085]">
-                  {selectedFileNames.length === 0 ? (
-                    // Display "Maximum File Size: 10MB" if no files are attached
-                    <span className="sub-title">Maximum File Size: 15MB</span>
-                  ) : (
-                    // Display the file name if one file is attached, or the number of files if more than one are attached
-                    <span className="">
-                      {selectedFileNames.length < 5
-                        ? // Display the file name if the number of files is less than or equal to 5
-                          selectedFileNames.length === 1
-                          ? selectedFileNames[0]
-                          : `${selectedFileNames.length}/5 files attached`
-                        : // Display a message indicating that the maximum limit has been reached
-                          `Maximum of 5 files added`}
+                >
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="flex">
+                      {selectedFileNames.length > 0 ? (
+                        // If files are selected, display filein.svg
+                        <Image
+                          className="mr-1"
+                          width={21.51}
+                          height={20}
+                          src={"/svgs/filein.svg"}
+                          alt=""
+                        />
+                      ) : (
+                        // If no files are selected, display folder-add.svg
+                        <Image
+                          className="mr-1"
+                          width={21.51}
+                          height={20}
+                          src={"/svgs/folder-add.svg"}
+                          alt=""
+                        />
+                      )}
+                      <div className="flex">
+                        <p className="mt-2 text-[15px] font-medium">
+                          Upload or Attach Files or{" "}
+                          <span className="ml-1 mt-2 text-[15px] font-medium text-blue-500 underline decoration-solid">
+                            Browse
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <span className="w-[200px] truncate text-[10px] font-normal text-[#667085]">
+                      {selectedFileNames.length === 0 ? (
+                        // Display "Maximum File Size: 10MB" if no files are attached
+                        // den
+                        <span className="sub-title">
+                          Maximum File Size: 15MB
+                        </span>
+                      ) : (
+                        // Display the file name if one file is attached, or the number of files if more than one are attached
+                        <span className="">
+                          {selectedFileNames.length < 5
+                            ? // Display the file name if the number of files is less than or equal to 5
+                              selectedFileNames.length === 1
+                              ? selectedFileNames[0]
+                              : `${selectedFileNames.length}/5 files attached`
+                            : // Display a message indicating that the maximum limit has been reached
+                              `Maximum of 5 files added`}
+                        </span>
+                      )}
                     </span>
-                  )}
-                </span>
+                  </div>
+                </label>
+                <input
+                  type="file"
+                  id="imageUpload"
+                  multiple={true}
+                  accept="image/*,.pdf"
+                  className="hidden"
+                  disabled={tab ? tab.length > 0 : false}
+                  name="file"
+                  onChange={(e) => handleFile(e)}
+                />
               </div>
-            </label>
-            <input
-              type="file"
-              id="imageUpload"
-              multiple={true}
-              accept="image/*,.pdf"
-              className="hidden"
-              disabled={tab ? tab.length > 0 : false}
-              name="file"
-              onChange={(e) => handleFile(e)}
-            />
+            )}
           </div>
         )}
       </div>
 
       {isPrn && (
         <div>
-          <hr className="my-5 flex" />
-          <div className="grid grid-cols-7 gap-x-5">
-            <div className="sub-title col-span-1">Duration:</div>
-            <div className="col-span-3">
-              <div className="flex w-full flex-col gap-2">
-                <h1 className="required-field text-[20px] font-medium">
-                  Start Date
-                </h1>
-                <div className="relative flex">
-                  <input
-                    required
-                    type="date"
-                    readOnly={tab ? tab.length > 0 : false}
-                    className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
-                    name="startDate"
-                    value={parseDate(formData.startDate)}
-                    onChange={handleChange}
-                  />
-                  <Image
-                    className="pointer-events-none absolute right-0 top-0 mr-3 mt-3"
-                    width={20}
-                    height={20}
-                    src={"/svgs/calendark.svg"}
-                    alt={""}
-                  />
+          {/* <hr className="my-5 flex" /> */}
+          {!tab && (
+            <div className="grid grid-cols-7 gap-x-5">
+              <div className="sub-title col-span-1">Duration:</div>
+              <div className="col-span-3">
+                <div className="flex w-full flex-col gap-2">
+                  <h1 className="required-field text-[20px] font-medium">
+                    Start Date
+                  </h1>
+                  <div className="relative flex">
+                    <input
+                      required
+                      type="date"
+                      // readOnly={tab ? tab.length > 0 : false}
+                      className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                      name="startDate"
+                      // value={parseDate(formData.startDate)}
+                      // value={formatCreatedAtDate(formData.startDate)}
+                      value={formData.startDate}
+                      onChange={handleChange}
+                    />
+                    <Image
+                      className="pointer-events-none absolute right-0 top-0 mr-3 mt-3"
+                      width={20}
+                      height={20}
+                      src={"/svgs/calendark.svg"}
+                      alt={""}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="col-span-3">
+                <div className="flex w-full flex-col gap-2">
+                  <h1 className="required-field text-[20px] font-medium">
+                    End Date
+                  </h1>
+                  <div className="relative flex">
+                    <input
+                      required
+                      type="date"
+                      readOnly={tab ? tab.length > 0 : false}
+                      className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                      name="endDate"
+                      value={formData.endDate}
+                      onChange={handleChange}
+                    />
+                    <Image
+                      className="pointer-events-none absolute right-0 top-0 mr-3 mt-3"
+                      width={20}
+                      height={20}
+                      src={"/svgs/calendark.svg"}
+                      alt={""}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="col-span-3">
-              <div className="flex w-full flex-col gap-2">
-                <h1 className="required-field text-[20px] font-medium">
-                  End Date
-                </h1>
-                <div className="relative flex">
-                  <input
-                    required
-                    type="date"
-                    readOnly={tab ? tab.length > 0 : false}
-                    className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
-                    name="endDate"
-                    value={parseDate(formData.endDate)}
-                    onChange={handleChange}
-                  />
-                  <Image
-                    className="pointer-events-none absolute right-0 top-0 mr-3 mt-3"
-                    width={20}
-                    height={20}
-                    src={"/svgs/calendark.svg"}
-                    alt={""}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       )}
 
-      <div className="mt-5 flex w-full justify-end">
-        <button
-          onClick={() => {
-            if (setIsOrder) {
-              setIsOrder(false);
-            } else {
-              isModalOpen(false);
-            }
-            setIsOrderModalOpen ? setIsOrderModalOpen(false) : null;
-          }}
-          disabled={isSubmitted}
-          type="button"
-          className={` ${isSubmitted && "cursor-not-allowed"} mr-4 h-[45px] w-[150px] rounded-sm bg-[#F3F3F3] font-medium text-black hover:bg-[#D9D9D9]`}
-        >
-          Cancel
-        </button>
-        <button
-          disabled={isSubmitted}
-          type="submit"
-          className={`${isSubmitted && "cursor-not-allowed"} h-[45px] w-[150px] rounded-sm bg-[#007C85] px-3 py-2 font-medium text-[#ffff] hover:bg-[#03595B]`}
-        >
-          Submit
-        </button>
-      </div>
+      {!tab && (
+        <div className="mt-5 flex w-full justify-end">
+          <button
+            onClick={() => {
+              if (setIsOrder) {
+                setIsOrder(false);
+              } else {
+                isModalOpen(false);
+              }
+              setIsOrderModalOpen ? setIsOrderModalOpen(false) : null;
+            }}
+            disabled={isSubmitted}
+            type="button"
+            className={` ${isSubmitted && "cursor-not-allowed"} mr-4 h-[45px] w-[150px] rounded-sm bg-[#F3F3F3] font-medium text-black hover:bg-[#D9D9D9]`}
+          >
+            Cancel
+          </button>
+          <button
+            disabled={isSubmitted}
+            type="submit"
+            className={`${isSubmitted && "cursor-not-allowed"} h-[45px] w-[150px] rounded-sm bg-[#007C85] px-3 py-2 font-medium text-[#ffff] hover:bg-[#03595B]`}
+          >
+            Submit
+          </button>
+        </div>
+      )}
     </form>
   );
 };

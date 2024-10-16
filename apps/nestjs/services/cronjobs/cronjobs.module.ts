@@ -24,11 +24,13 @@ import { OrdersPrescriptionsService } from 'src/orders_prescriptions/orders_pres
 import { Orders } from 'src/orders/entities/order.entity';
 import { OrdersLaboratory } from 'src/orders_laboratory/entities/orders_laboratory.entity';
 import { OrdersLaboratoryService } from 'src/orders_laboratory/orders_laboratory.service';
+import { OrdersDietaryService } from 'src/orders_dietary/orders_dietary.service';
+import { OrdersDietary } from 'src/orders_dietary/entities/orders_dietary.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Appointments, Patients, Prescriptions,MedicationLogs,PrescriptionsFiles, Notification, AppointmentsFiles ,UserNotification, Users, Appointments, AppointmentsFiles, Orders,OrdersPrescriptions, OrdersLaboratory])],
+  imports: [TypeOrmModule.forFeature([Appointments, Patients, Prescriptions,MedicationLogs,PrescriptionsFiles, Notification, AppointmentsFiles ,UserNotification, Users, Appointments, AppointmentsFiles, Orders,OrdersPrescriptions, OrdersLaboratory, OrdersDietary])],
 
-  providers: [CronjobsService, AppointmentsService, AppointmentFilesService, UserNotificationGateway, PrescriptionsService,MedicationLogsService,  PrescriptionFilesService, IdService, NotificationsService, OrdersService,OrdersPrescriptionsService,AppointmentFilesService,AppointmentsService, OrdersLaboratoryService] // Include AppointmentsService here
+  providers: [CronjobsService, AppointmentsService, AppointmentFilesService, UserNotificationGateway, PrescriptionsService,MedicationLogsService,  PrescriptionFilesService, IdService, NotificationsService, OrdersService,OrdersPrescriptionsService,AppointmentFilesService,AppointmentsService, OrdersLaboratoryService, OrdersDietaryService] // Include AppointmentsService here
 })
 
 export class CronjobsModule {

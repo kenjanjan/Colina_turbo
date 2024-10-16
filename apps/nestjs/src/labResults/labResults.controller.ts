@@ -25,27 +25,33 @@ import { LabResultsService } from './labResults.service';
 import { CreateLabResultInput } from './dto/create-labResults.input';
 import { UpdateLabResultInput } from './dto/update-labResults.input';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { LabResultsFilesService } from 'src/labResultsFiles/labResultsFiles.service';
 import { Response, application } from 'express';
+import { LabResultsFilesService } from 'src/labResultsFiles/labResultsFiles.service';
 
 import { Readable } from 'typeorm/platform/PlatformTools';
 import { extname, join } from 'path';
 import { getFileValidator } from 'services/fileValidator/getFileValidator';
 import archiver from 'archiver';
 import { createReadStream } from 'fs';
+import { OrdersLaboratoryService } from 'src/orders_laboratory/orders_laboratory.service';
+import { OrdersService } from 'src/orders/orders.service';
 
 @Controller('lab-results')
 export class LabResultsController {
     constructor(private readonly labResultsService: LabResultsService,
-        private readonly labResultsFilesService: LabResultsFilesService) { }
+        private readonly labResultsFilesService: LabResultsFilesService,
+        private readonly ordersLaboratoryService: OrdersLaboratoryService,
+        private readonly ordersService: OrdersService,
+
+    ) { }
     @Post(':id')
     createLabResult(
         @Param('id') patientId: string,
         @Body() createLabResultInput: CreateLabResultInput & { orderUuid: string }
-      ) {
+    ) {
         const { orderUuid, ...labResultData } = createLabResultInput; // Extract orderUuid from body
         return this.labResultsService.createLabResults(patientId, labResultData, orderUuid);
-      }
+    }
     @Post('get/all')
     getLabResults() {
         return this.labResultsService.getAllLabResults();
@@ -53,15 +59,30 @@ export class LabResultsController {
     @Post('list/:id')
     findAllLabResultsByPatient(
         @Param('id') patientId: string,
-        @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' , perPage: number}
+        @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC', perPage: number }
     ) {
         const { term = "", page, sortBy, sortOrder, perPage } = body;
-        return this.labResultsService.getAllLabResultsByPatient(term, patientId, page, sortBy, sortOrder , perPage);
+        return this.labResultsService.getAllLabResultsByPatient(term, patientId, page, sortBy, sortOrder, perPage);
     }
     @Patch('update/:id')
-    updateLabResults(@Param('id') id: string, @Body() updateLabResultInput: UpdateLabResultInput) {
-        return this.labResultsService.updateLabResults(id, updateLabResultInput);
+    async updateLabResults(
+        @Param('id') id: string,
+        @Body() updateLabResultInput: UpdateLabResultInput & { orderUuid?: string } // Combine the types
+    ) {
+        const { orderUuid } = updateLabResultInput; // Extract orderUuid from the input directly
+
+        if (orderUuid) {
+
+            const labId = await this.labResultsService.getLabResultIdFromUuid(id);
+            const orderId = await this.ordersService.getOrderIdFromUuid(orderUuid);
+            console.log(orderId, labId, "checkit")
+            // Update OrdersLaboratory if orderUuid is provided
+            await this.ordersLaboratoryService.updateOrdersLaboratory(orderId, labId);
+        }
+
+        return await this.labResultsService.updateLabResults(id, updateLabResultInput); // Pass the entire input to the service
     }
+
     @Patch('delete/:id')
     softDeleteLabResult(@Param('id') id: string) {
         return this.labResultsService.softDeleteLabResults(id);
@@ -180,7 +201,7 @@ export class LabResultsController {
     // Updated softDeleteLabFiles function
     @Patch('files/delete/:fileId')
     async softDeleteLabFiles(@Param('fileId') fileUuid: string) {
-    
+
         await this.labResultsFilesService.softDeleteLabFile(fileUuid);
         console.log(`Delete Lab File`, fileUuid);
         return `Deleted Lab File ${fileUuid} Successfully`;
@@ -217,4 +238,4 @@ export class LabResultsController {
 //     });
 //     return new StreamableFile(stream);
 // }
- 
+

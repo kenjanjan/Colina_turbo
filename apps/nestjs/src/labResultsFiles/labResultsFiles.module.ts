@@ -15,11 +15,13 @@ import { AppointmentFilesService } from 'src/appointmentsFiles/appointmentsFiles
 import { Appointments } from 'src/appointments/entities/appointments.entity';
 import { AppointmentsFiles } from 'src/appointmentsFiles/entities/appointmentsFiles.entity';
 import { AppointmentsService } from 'src/appointments/appointments.service';
+import { OrdersDietary } from 'src/orders_dietary/entities/orders_dietary.entity';
+import { OrdersDietaryService } from 'src/orders_dietary/orders_dietary.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Patients, LabResultsFiles, LabResults, OrdersLaboratory, Orders, Appointments, AppointmentsFiles])],
+  imports: [TypeOrmModule.forFeature([Patients, LabResultsFiles, LabResults, OrdersLaboratory, Orders, Appointments, AppointmentsFiles, OrdersDietary])],
 
   controllers: [LabResultsFilesController],
-  providers: [LabResultsFilesService, IdService, LabResultsService, OrdersLaboratoryService, OrdersService,AppointmentFilesService ,AppointmentsService],
+  providers: [LabResultsFilesService, IdService, LabResultsService, OrdersLaboratoryService, OrdersService,AppointmentFilesService ,AppointmentsService, OrdersDietaryService],
 })
 export class LabResultsFilesModule {}

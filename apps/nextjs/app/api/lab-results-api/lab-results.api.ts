@@ -11,7 +11,7 @@ export async function fetchLabResultsByPatient(
   sortBy: string,
   sortOrder: "ASC" | "DESC",
   perPage: number,
-  router: any // Pass router instance as a parameter
+  router: any, // Pass router instance as a parameter
 ): Promise<any> {
   const requestData = {
     patientUuid: patientUuid.toUpperCase(),
@@ -35,7 +35,7 @@ export async function fetchLabResultsByPatient(
     const response = await axios.post(
       `${apiUrl}/lab-results/list/${patientUuid}`,
       requestData,
-      { headers }
+      { headers },
     );
 
     console.log(response.data);
@@ -49,7 +49,7 @@ export async function fetchLabResultsByPatient(
         // Handle network error
         console.error("Connection refused or network error occurred.");
         return Promise.reject(
-          new Error("Connection refused or network error occurred.")
+          new Error("Connection refused or network error occurred."),
         );
       }
       if (axiosError.response?.status === 401) {
@@ -66,7 +66,7 @@ export async function fetchLabResultsByPatient(
 export async function createLabResultOfPatient(
   patientId: string,
   formData: any,
-  router: any
+  router: any,
 ): Promise<any> {
   try {
     const accessToken = getAccessToken();
@@ -82,7 +82,7 @@ export async function createLabResultOfPatient(
     const response = await axios.post(
       `${apiUrl}/lab-results/${patientId}`,
       formData,
-      { headers }
+      { headers },
     );
     const createdLabResult = response.data;
 
@@ -96,7 +96,7 @@ export async function createLabResultOfPatient(
 export async function addLabFile(
   labResultUuid: string,
   formData: any,
-  router: any
+  router: any,
 ): Promise<any> {
   try {
     const accessToken = getAccessToken();
@@ -119,7 +119,7 @@ export async function addLabFile(
     const response = await axios.post(
       `${apiUrl}/lab-results/${labResultUuid}/uploadfiles`,
       formData,
-      { headers }
+      { headers },
     );
 
     const labFileInserted = response.data;
@@ -141,7 +141,7 @@ export async function addLabFile(
 // Function to delete files associated with a lab result
 export async function deleteLabFiles(
   labResultUuid: string,
-  fileUUID: string
+  fileUUID: string,
 ): Promise<any> {
   try {
     // Retrieve the access token from local storage
@@ -161,7 +161,7 @@ export async function deleteLabFiles(
       {},
       {
         headers,
-      }
+      },
     );
     console.log(response, "labFileInserted");
 
@@ -176,7 +176,7 @@ export async function deleteLabFiles(
 export async function updateLabResultOfPatient(
   labResultUuid: string,
   formData: any,
-  router: any
+  router: any,
 ): Promise<any> {
   try {
     console.log(formData, "Form Data");
@@ -193,7 +193,7 @@ export async function updateLabResultOfPatient(
     const response = await axios.patch(
       `${apiUrl}/lab-results/update/${labResultUuid}`,
       formData,
-      { headers }
+      { headers },
     );
     const updatedLabResult = response.data;
 
@@ -210,7 +210,7 @@ export async function updateLabResultOfPatient(
 
 export async function fetchLabResultFiles(
   labResultUuid: string,
-  router: any // Pass router instance as a parameter
+  router: any, // Pass router instance as a parameter
 ): Promise<any> {
   const requestData = {
     labResultUuid: labResultUuid.toUpperCase(),
@@ -229,7 +229,7 @@ export async function fetchLabResultFiles(
 
     const response = await axios.get(
       `${apiUrl}/lab-results/${labResultUuid}/files`,
-      { headers }
+      { headers },
     );
 
     console.log(response.data, "api fetch lab result files");
@@ -242,13 +242,13 @@ export async function fetchLabResultFiles(
     }
     console.error(
       "Error searching lab result files:",
-      (error as AxiosError).message
+      (error as AxiosError).message,
     );
   }
 }
 
 export async function getCurrentFileCountFromDatabase(
-  labResultUuid: string
+  labResultUuid: string,
 ): Promise<any> {
   console.log(labResultUuid);
   try {
@@ -263,7 +263,7 @@ export async function getCurrentFileCountFromDatabase(
 
     const response = await axios.get(
       `${apiUrl}/lab-results/${labResultUuid}/files/count`,
-      { headers }
+      { headers },
     );
 
     console.log(response.data, "api fetch COUNT");
@@ -275,7 +275,144 @@ export async function getCurrentFileCountFromDatabase(
     }
     console.error(
       "Error searching lab result files:",
-      (error as AxiosError).message
+      (error as AxiosError).message,
     );
+  }
+}
+
+// search order list
+
+export async function fetchLabOrders(
+  patientUuid: string,
+  router: any, // Pass router instance as a parameter
+): Promise<any> {
+  const requestData = {
+    patientUuid: patientUuid.toUpperCase(),
+  };
+  try {
+    console.log("searchPatient", requestData);
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      throw new Error("Unauthorized Access");
+    }
+
+    const headers = {
+      Authorization: `Bearer ${accessToken}`,
+    };
+
+    const response = await axios.post(
+      `${apiUrl}/orders/findPatientPendingLabOrders`,
+      requestData,
+      { headers },
+    );
+
+    console.log(response.data);
+    const orderList = response.data;
+    console.log(orderList, "orderlist after search");
+    return orderList;
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.message === "Network Error") {
+        // Handle network error
+        console.error("Connection refused or network error occurred.");
+        return Promise.reject(
+          new Error("Connection refused or network error occurred."),
+        );
+      }
+      if (axiosError.response?.status === 401) {
+        setAccessToken("");
+        onNavigate(router, "/login");
+        return Promise.reject(new Error("Unauthorized access"));
+      }
+    }
+    console.error("Error searching order list:", error.message);
+    return Promise.reject(error);
+  }
+}
+
+export async function fetchDietaryOrders(
+  patientUuid: string,
+  orderType: string,
+  router: any, // Pass router instance as a parameter
+): Promise<any> {
+  const requestData = {
+    patientUuid: patientUuid.toUpperCase(),
+    orderType: orderType,
+  };
+  try {
+    console.log("searchPatient", requestData);
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      throw new Error("Unauthorized Access");
+    }
+
+    const headers = {
+      Authorization: `Bearer ${accessToken}`,
+    };
+
+    const response = await axios.post(
+      `${apiUrl}/orders/findPatientOrders`,
+      requestData,
+      { headers },
+    );
+
+    console.log(response.data);
+    const orderList = response.data;
+    console.log(orderList, "orderlist after search");
+    return orderList;
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.message === "Network Error") {
+        // Handle network error
+        console.error("Connection refused or network error occurred.");
+        return Promise.reject(
+          new Error("Connection refused or network error occurred."),
+        );
+      }
+      if (axiosError.response?.status === 401) {
+        setAccessToken("");
+        onNavigate(router, "/login");
+        return Promise.reject(new Error("Unauthorized access"));
+      }
+    }
+    console.error("Error searching order list:", error.message);
+    return Promise.reject(error);
+  }
+}
+
+///ORDERS LAB
+
+export async function createInitialLabOrder(
+  patientId: string,
+  appointmentId: any,
+  router: any,
+): Promise<any> {
+  const formBody ={
+    appointmentUuid: appointmentId,
+  }
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      throw new Error("Unauthorized Access");
+    }
+
+    const headers = {
+      Authorization: `Bearer ${accessToken}`,
+    };
+
+    // Make the API request to create the allergy
+    const response = await axios.post(
+      `${apiUrl}/orders/create-lab-order/${patientId}`,
+      formBody,
+      { headers },
+    );
+    const createdLabOrder = response.data;
+
+    return createdLabOrder;
+  } catch (error) {
+    console.error("Error creating LabOrder:", error);
+    throw error; // Rethrow the error to handle it in the component
   }
 }

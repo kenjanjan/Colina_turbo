@@ -7,6 +7,7 @@ import {
   updateLabResultOfPatient,
   createLabResultOfPatient,
   addLabFile,
+  fetchLabOrders,
 } from "@/app/api/lab-results-api/lab-results.api";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -15,11 +16,14 @@ import {
 } from "@/app/api/lab-results-api/lab-results.api";
 import { useToast } from "@/components/ui/use-toast";
 interface Modalprops {
+  orderUuid?: string;
+  label?: string;
   isEdit: any;
   labResultData: any;
   setIsUpdated: any;
   isModalOpen: (isOpen: boolean) => void;
   onSuccess: () => void;
+  appointmentData: any;
 }
 interface LabFile {
   file: any; // Assuming file property exists for the key
@@ -29,12 +33,15 @@ interface LabFile {
 }
 
 export const LabresultsModalContent = ({
+  orderUuid,
+  label,
   isEdit,
   labResultData,
   setIsUpdated,
   // isOpen,
   isModalOpen,
   onSuccess,
+  appointmentData,
 }: Modalprops) => {
   const params = useParams<{
     id: any;
@@ -50,6 +57,7 @@ export const LabresultsModalContent = ({
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+
   const [formData, setFormData] = useState({
     date: labResultData.labResults_date || "",
     hemoglobinA1c: labResultData.labResults_hemoglobinA1c || "",
@@ -58,11 +66,14 @@ export const LabresultsModalContent = ({
     ldlCholesterol: labResultData.labResults_ldlCholesterol || "",
     hdlCholesterol: labResultData.labResults_hdlCholesterol || "",
     triglycerides: labResultData.labResults_triglycerides || "",
+    orderUuid: orderUuid ? orderUuid : "",
   });
   let headingText = "";
 
   if (isEdit) {
     headingText = "Update Laboratory Result";
+  } else if (label === "ViewLabResult") {
+    headingText = "Laboratory Result";
   } else {
     headingText = "Add Laboratory Result";
   }
@@ -111,7 +122,7 @@ export const LabresultsModalContent = ({
     if (files) {
       const totalSize = Array.from(files).reduce(
         (acc, file) => acc + file.size,
-        0
+        0,
       );
       const totalSizeMB = totalSize / (1024 * 1024); // Convert bytes to MB
 
@@ -177,7 +188,7 @@ export const LabresultsModalContent = ({
         await updateLabResultOfPatient(
           labResultData.labResults_uuid,
           formData,
-          router
+          router,
         );
 
         // Iterate through each selected file
@@ -191,12 +202,12 @@ export const LabresultsModalContent = ({
             const addLabFiles = await addLabFile(
               getUuid,
               labFileFormData,
-              router
+              router,
             );
 
             console.log(
               `Lab FILE ${fileNames[i]} added successfully:`,
-              addLabFiles
+              addLabFiles,
             );
           }
         } else {
@@ -210,7 +221,7 @@ export const LabresultsModalContent = ({
         const labResult = await createLabResultOfPatient(
           patientId,
           formData,
-          router
+          router,
         );
         console.log("Lab Result added successfully:", labResult);
         const getUuid = labResult.uuid;
@@ -227,12 +238,12 @@ export const LabresultsModalContent = ({
             const addLabFiles = await addLabFile(
               getUuid,
               labFileFormData,
-              router
+              router,
             );
 
             console.log(
               `Lab FILE ${fileNames[i]} added successfully:`,
-              addLabFiles
+              addLabFiles,
             );
           }
         } else {
@@ -247,6 +258,7 @@ export const LabresultsModalContent = ({
           ldlCholesterol: "",
           hdlCholesterol: "",
           triglycerides: "",
+          orderUuid: "",
         });
         onSuccess();
       }
@@ -288,7 +300,7 @@ export const LabresultsModalContent = ({
       try {
         const response = await fetchLabResultFiles(
           labResultData.labResults_uuid,
-          router
+          router,
         );
 
         // Only proceed if response.data is not null or empty
@@ -327,16 +339,16 @@ export const LabresultsModalContent = ({
       >
         {labFiles.length === 5 && isEdit ? (
           <div className="">
-            <label className="relative w-full bg-[#daf3f5] border-[#007C85] border-dashed border-2 flex justify-center items-center rounded-md cursor-pointer text-center text-[#101828] font-bold">
+            <label className="relative flex w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-[#007C85] bg-[#daf3f5] text-center font-bold text-[#101828]">
               <>
                 <Image
-                  className="w-7 h-7 mr-1"
+                  className="mr-1 h-7 w-7"
                   width={50}
                   height={50}
                   src={"/svgs/filein.svg"}
                   alt=""
                 />
-                <div className="flex pb-5 text-nowrap text-[12px]">
+                <div className="flex text-nowrap pb-5 text-[12px]">
                   <p className="mt-2">Maximum Files Uploaded</p>
                 </div>
               </>
@@ -346,13 +358,13 @@ export const LabresultsModalContent = ({
           <div className="">
             <label
               htmlFor="imageUpload"
-              className="relative h-12 w-full flex justify-center items-center rounded-md cursor-pointer text-center text-[#101828] font-bold mt-[33px] bg-[#daf3f5] border-[#007C85] border-dashed border-2"
+              className="relative mt-[33px] flex h-12 w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-[#007C85] bg-[#daf3f5] text-center font-bold text-[#101828]"
             >
               <>
                 {selectedFileNames.length > 0 ? (
                   // If files are selected, display filein.svg
                   <Image
-                    className="w-7 h-7 mr-1"
+                    className="mr-1 h-7 w-7"
                     width={50}
                     height={50}
                     src={"/svgs/filein.svg"}
@@ -361,20 +373,20 @@ export const LabresultsModalContent = ({
                 ) : (
                   // If no files are selected, display folder-add.svg
                   <Image
-                    className="w-7 h-7 mr-1"
+                    className="mr-1 h-7 w-7"
                     width={50}
                     height={50}
                     src={"/svgs/folder-add.svg"}
                     alt=""
                   />
                 )}
-                <div className="flex pb-5 text-nowrap text-[12px]">
+                <div className="flex text-nowrap pb-5 text-[12px]">
                   <p className="mt-2">Upload or Attach Files or</p>
-                  <p className="underline decoration-solid text-blue-500 ml-1 mt-2">
+                  <p className="ml-1 mt-2 text-blue-500 underline decoration-solid">
                     Browse
                   </p>
                 </div>
-                <span className="text-[10px] font-normal absolute bottom-2 text-[#667085] ml-10">
+                <span className="absolute bottom-2 ml-10 text-[10px] font-normal text-[#667085]">
                   {selectedFileNames.length === 0 ? (
                     // Display "Maximum File Size: 10MB" if no files are attached
                     <span>Maximum File Size: 15MB</span>
@@ -403,7 +415,7 @@ export const LabresultsModalContent = ({
               onChange={(e) => handleFile(e)}
             />
             {isHovering && selectedFiles.length > 0 && (
-              <div className="absolute bg-[#4E4E4E] p-2 w-[290px] text-[13px]   text-white rounded-md shadow-md left-0">
+              <div className="absolute left-0 w-[290px] rounded-md bg-[#4E4E4E] p-2 text-[13px] text-white shadow-md">
                 <ul>
                   {selectedFiles.map((file, index) => (
                     <li key={index}>{file.name}</li>
@@ -416,29 +428,64 @@ export const LabresultsModalContent = ({
       </div>
     );
   };
+
+  interface Order {
+    orderuuid: string;
+  }
+  const [orderList, setOrderlist] = useState<Order[]>([]);
+  const [term, setTerm] = useState("");
+  const [isReferenceUIDChecked, setIsReferenceUIDChecked] = useState(false);
+  const [isReferenceOpen, setIsReferenceOpen] = useState(false);
+  const handleReferenceUIDCheckbox = () => {
+    setIsReferenceUIDChecked(!isReferenceUIDChecked);
+  };
+  const handleReferenceSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTerm(e.target.value);
+    setIsReferenceOpen(true);
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetchLabOrders(patientId, router);
+        if (response) {
+          setOrderlist(response.data);
+        }
+      } catch (error) {}
+    };
+    fetchData();
+  }, []);
+  const filteredOrders = Array.isArray(orderList)
+    ? orderList.filter((order) =>
+        order.orderuuid.toLowerCase().includes(term.toLowerCase()),
+      )
+    : [];
+  console.log(orderList, "orderliost");
+  console.log(formData, "formdata");
+  console.log(label, "label");
+  console.log(appointmentData, "appointmentData");
+  console.log(orderUuid, "orderUuid");
   return (
     <>
-      <div className="w-[676px] h-[584px]">
+      <div className="min-w-[676px]">
         {isLoading && isEdit ? (
           // Loading state
           <>
-            <div className="bg-[#ffffff] w-full h-[70px] flex flex-col justify-start rounded-md">
-              <div className="items-center flex justify-between">
-                <h2 className="p-title text-left text-[#071437] pl-10 mt-7"></h2>
+            <div className="flex h-[70px] w-full flex-col justify-start rounded-md bg-[#ffffff]">
+              <div className="flex items-center justify-between">
+                <h2 className="p-title mt-7 pl-10 text-left text-[#071437]"></h2>
                 <X
                   onClick={() => {
                     isSubmitted ? null : isModalOpen(false);
                   }}
-                  className={`
-                  ${isSubmitted && " cursor-not-allowed"}
-                  w-6 h-6 text-black flex items-center mt-6 mr-9 cursor-pointer`}
+                  className={` ${isSubmitted && "cursor-not-allowed"} mr-9 mt-6 flex h-6 w-6 cursor-pointer items-center text-black`}
                 />
               </div>
-              <p className="text-sm pl-10 text-gray-600 pb-10 pt-2"></p>
+              <p className="pb-10 pl-10 pt-2 text-sm text-gray-600"></p>
             </div>
             <div className="mb-9 pt-4">
-              <div className="h-[380px] md:px-8 mt-5">
-                <div className="w-full h-full flex justify-center items-center ">
+              <div className="mt-5 h-[380px] md:px-8">
+                <div className="flex h-full w-full items-center justify-center">
                   <Image
                     src="/imgs/colina-logo-animation.gif"
                     alt="logo"
@@ -452,38 +499,98 @@ export const LabresultsModalContent = ({
         ) : (
           <>
             <form className="" onSubmit={handleSubmit}>
-              <div className="bg-[#ffffff] w-full h-[70px] flex flex-col justify-start rounded-md">
-                <div className="items-center flex justify-between">
-                  <h2 className="p-title text-left text-[#071437] pl-10 mt-7">
+              <div className="flex h-[70px] w-full flex-col justify-start rounded-md bg-[#ffffff]">
+                <div className="flex items-center justify-between">
+                  <h2 className="p-title mt-7 pl-10 text-left text-[#071437]">
                     {headingText}
                   </h2>
                   <X
                     onClick={() => isModalOpen(false)}
-                    className="w-6 h-6 text-black flex items-center mt-6 mr-9 cursor-pointer"
+                    className="mr-9 mt-6 flex h-6 w-6 cursor-pointer items-center text-black"
                   />
                 </div>
-                <p className="text-sm pl-10 text-gray-600 pb-10 pt-2">
+                <p className="pb-10 pl-10 pt-2 text-sm text-gray-600">
                   {isEdit ? "Update" : "Submit"} your log details.
                 </p>
               </div>
-              <div className=" mb-9 pt-4">
-                <div className="h-[600px] max-h-[412px] md:px-10 mt-5">
+              {!label && (
+                <div className="ml-10 mt-5 flex gap-1.5">
+                  <input
+                    id="checkbox"
+                    type="checkbox"
+                    onChange={handleReferenceUIDCheckbox}
+                    className="cursor-pointer"
+                  />
+                  <label
+                    htmlFor="checkbox"
+                    className="sub-title cursor-pointer"
+                  >
+                    Link to existing order
+                  </label>
+                </div>
+              )}
+              {isReferenceUIDChecked && (
+                <div className="mt-5 flex flex-col px-10">
+                  <input
+                    required
+                    type="text"
+                    value={term}
+                    onChange={handleReferenceSearch}
+                    placeholder="example: ORDER UID-123123123123"
+                    className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                  />
+                  {term && isReferenceOpen && (
+                    <div className="relative z-50">
+                      <div className="absolute mt-2 max-h-[200px] w-full overflow-y-auto rounded-lg bg-white px-4 py-2 drop-shadow-lg">
+                        <p className="sub-title !font-semibold">Select</p>
+                        {filteredOrders.length > 0 ? (
+                          filteredOrders.map((order: any, index) => (
+                            <div
+                              key={index}
+                              onClick={() => {
+                                setFormData((prevData) => ({
+                                  ...prevData,
+                                  orderUuid: order.orderuuid,
+                                }));
+                                setTerm(order.orderuuid);
+                                setIsReferenceOpen(false);
+                              }}
+                              className="cursor-pointer space-x-2 font-semibold hover:text-[#03595B]"
+                            >
+                              <p>{order.orderuuid}</p>
+                            </div>
+                          ))
+                        ) : (
+                          <p>No matching orders found.</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="mb-9 pt-4">
+                <div className="mt-5 md:px-10">
                   <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
                     <div>
                       <label
                         htmlFor="first-name"
-                        className="block text-md font-bold leading-6 text-gray-900 required-field"
+                        className="text-md required-field block font-bold leading-6 text-gray-900"
                       >
                         HEMOGLOBIN A1c
                       </label>
                       <div className="mt-2.5">
                         <input
-                          value={formData.hemoglobinA1c}
+                          value={
+                            formData.hemoglobinA1c || label === "ViewLabResult"
+                              ? appointmentData.labresulthemoglobina1c
+                              : ""
+                          }
+                          readOnly={label === "ViewLabResult"}
                           type="text"
                           onChange={handleChange}
                           required
                           name="hemoglobinA1c"
-                          className="block w-full h-12 rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                          className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
                           placeholder="input hemoglobin a1c"
                         />
                       </div>
@@ -491,7 +598,7 @@ export const LabresultsModalContent = ({
                     <div>
                       <label
                         htmlFor="last-name"
-                        className="block text-md font-bold leading-6 text-gray-900 required-field"
+                        className="text-md required-field block font-bold leading-6 text-gray-900"
                       >
                         FASTING BLOOD GLUCOSE
                       </label>
@@ -499,10 +606,16 @@ export const LabresultsModalContent = ({
                         <input
                           type="text"
                           onChange={handleChange}
-                          value={formData.fastingBloodGlucose}
+                          value={
+                            formData.fastingBloodGlucose ||
+                            label === "ViewLabResult"
+                              ? appointmentData.labresultfastingbloodglucose
+                              : ""
+                          }
+                          readOnly={label === "ViewLabResult"}
                           required
                           name="fastingBloodGlucose"
-                          className="block w-full h-12 rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                          className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
                           placeholder="input fasting blood glucose"
                         />
                       </div>
@@ -510,18 +623,24 @@ export const LabresultsModalContent = ({
                     <div>
                       <label
                         htmlFor="first-name"
-                        className="block text-md font-bold leading-6 text-gray-900 required-field"
+                        className="text-md required-field block font-bold leading-6 text-gray-900"
                       >
                         TOTAL CHOLESTEROL
                       </label>
                       <div className="mt-2.5">
                         <input
-                          value={formData.totalCholesterol}
+                          value={
+                            formData.totalCholesterol ||
+                            label === "ViewLabResult"
+                              ? appointmentData.labresulttotalcholesterol
+                              : ""
+                          }
+                          readOnly={label === "ViewLabResult"}
                           type="text"
                           required
                           name="totalCholesterol"
                           onChange={handleChange}
-                          className="block w-full h-12 rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                          className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
                           placeholder="input total cholesterol"
                         />
                       </div>
@@ -529,18 +648,23 @@ export const LabresultsModalContent = ({
                     <div>
                       <label
                         htmlFor="last-name"
-                        className="block text-md font-bold leading-6 text-gray-900 required-field"
+                        className="text-md required-field block font-bold leading-6 text-gray-900"
                       >
                         LDL CHOLESTEROL
                       </label>
                       <div className="mt-2.5">
                         <input
                           type="text"
-                          value={formData.ldlCholesterol}
+                          value={
+                            formData.ldlCholesterol || label === "ViewLabResult"
+                              ? appointmentData.labresultldlcholesterol
+                              : ""
+                          }
+                          readOnly={label === "ViewLabResult"}
                           required
                           name="ldlCholesterol"
                           onChange={handleChange}
-                          className="block w-full h-12 rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400t sm:text-sm sm:leading-6"
+                          className="placeholder:text-gray-400t block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
                           placeholder="input ldl cholesterol"
                         />
                       </div>
@@ -548,18 +672,23 @@ export const LabresultsModalContent = ({
                     <div>
                       <label
                         htmlFor="first-name"
-                        className="block text-md font-bold leading-6 text-gray-900 required-field"
+                        className="text-md required-field block font-bold leading-6 text-gray-900"
                       >
                         HDL CHOLESTEROL
                       </label>
                       <div className="mt-2.5">
                         <input
-                          value={formData.hdlCholesterol}
+                          value={
+                            formData.hdlCholesterol || label === "ViewLabResult"
+                              ? appointmentData.labresulthdlcholesterol
+                              : ""
+                          }
+                          readOnly={label === "ViewLabResult"}
                           type="text"
                           onChange={handleChange}
                           required
                           name="hdlCholesterol"
-                          className="block w-full h-12 rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                          className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
                           placeholder="input hdl cholesterol"
                         />
                       </div>
@@ -567,18 +696,23 @@ export const LabresultsModalContent = ({
                     <div>
                       <label
                         htmlFor="last-name"
-                        className="block text-md font-bold leading-6 text-gray-900 required-field"
+                        className="text-md required-field block font-bold leading-6 text-gray-900"
                       >
                         TRIGLYCERIDES
                       </label>
                       <div className="mt-2.5">
                         <input
-                          value={formData.triglycerides}
+                          value={
+                            formData.triglycerides || label === "ViewLabResult"
+                              ? appointmentData.labresulttriglycerides
+                              : ""
+                          }
+                          readOnly={label === "ViewLabResult"}
                           type="text"
                           name="triglycerides"
                           onChange={handleChange}
                           required
-                          className="block w-full h-12 rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400t sm:text-sm sm:leading-6"
+                          className="placeholder:text-gray-400t block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
                           placeholder="input triglycerides"
                         />
                       </div>
@@ -586,23 +720,28 @@ export const LabresultsModalContent = ({
                     <div>
                       <label
                         htmlFor="last-name"
-                        className="block text-md font-bold leading-6 text-gray-900 required-field"
+                        className="text-md required-field block font-bold leading-6 text-gray-900"
                       >
                         DATE
                       </label>
 
-                      <div className="mt-2.5 relative">
+                      <div className="relative mt-2.5">
                         <input
                           required
                           type="date"
                           name="date"
-                          value={formData.date}
+                          value={
+                            formData.date || label === "ViewLabResult"
+                              ? appointmentData.labresultdate
+                              : ""
+                          }
+                          readOnly={label === "ViewLabResult"}
                           onChange={handleChange}
-                          className="block w-full h-12 rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400t sm:text-sm sm:leading-6"
+                          className="placeholder:text-gray-400t block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
                           placeholder="input triglycerides"
                         />
                         <Image
-                          className="absolute top-0 right-0 mt-3.5 mr-3 pointer-events-none"
+                          className="pointer-events-none absolute right-0 top-0 mr-3 mt-3.5"
                           width={20}
                           height={20}
                           src={"/svgs/calendark.svg"}
@@ -610,9 +749,11 @@ export const LabresultsModalContent = ({
                         />
                       </div>
                     </div>
-                    <div className="filehover">
-                      <FileUploadWithHover />
-                    </div>
+                    {label === "LabResultTab" && (
+                      <div className="filehover">
+                        <FileUploadWithHover />
+                      </div>
+                    )}
                     {/* {labFiles.length === 5 && isEdit ? (
                       <div className="">
                         <label className="relative h-12 w-full flex justify-center items-center rounded-md cursor-pointer text-center text-[#101828] font-bold mt-[33px] bg-[#daf3f5] border-[#007C85] border-dashed border-2">
@@ -701,29 +842,27 @@ export const LabresultsModalContent = ({
                     )} */}
                   </div>
                 </div>
-                <div className="pt-26">
-                  <div className="justify-end flex mr-10">
-                    <button
-                      onClick={() => isModalOpen(false)}
-                      disabled={isSubmitted}
-                      type="button"
-                      className={`
-                ${isSubmitted && " cursor-not-allowed"}
-                w-[150px] h-[45px]  bg-[#F3F3F3] hover:bg-[#D9D9D9] font-medium text-black  mr-4 rounded-sm `}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      disabled={isSubmitted}
-                      type="submit"
-                      className={`
-                       ${isSubmitted && " cursor-not-allowed"}
-                       w-[150px] h-[45px] px-3 py-2 bg-[#007C85] hover:bg-[#03595B]  text-[#ffff] font-medium  rounded-sm`}
-                    >
-                      Submit
-                    </button>
+                {label === "LabResultTab" && (
+                  <div className="pt-10">
+                    <div className="mr-10 flex justify-end">
+                      <button
+                        onClick={() => isModalOpen(false)}
+                        disabled={isSubmitted}
+                        type="button"
+                        className={` ${isSubmitted && "cursor-not-allowed"} mr-4 h-[45px] w-[150px] rounded-sm bg-[#F3F3F3] font-medium text-black hover:bg-[#D9D9D9]`}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        disabled={isSubmitted}
+                        type="submit"
+                        className={` ${isSubmitted && "cursor-not-allowed"} h-[45px] w-[150px] rounded-sm bg-[#007C85] px-3 py-2 font-medium text-[#ffff] hover:bg-[#03595B]`}
+                      >
+                        Submit
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </form>
           </>

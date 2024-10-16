@@ -4,4 +4,5 @@ export class CreateOrderDto {
     appointmentId: number;
     orderType: string;
     patientId: number;
+
 }

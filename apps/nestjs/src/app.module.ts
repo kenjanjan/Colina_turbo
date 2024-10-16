@@ -64,7 +64,7 @@ dotenv.config();
       password: process.env.PGPASSWORD,
       database: process.env.PGDATABASE,
       synchronize: process.env.DB_SYNCHRONIZE === 'true',
-      logging: process.env.DB_LOGGING === 'true',
+      logging: true,
       entities: [join(__dirname, '**', '*.entity.{ts,js}')],
       autoLoadEntities: true,
       ssl: true,

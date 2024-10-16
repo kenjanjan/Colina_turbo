@@ -40,6 +40,8 @@ export class Orders {
     @Column()
     orderType: string
 
+   
+
     @Column({ nullable: true })
     @Field()
     patientId: number;

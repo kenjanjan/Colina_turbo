@@ -127,7 +127,11 @@ const Adls = () => {
           </div>
           <div className="flex gap-2">
             <AddButton isModalOpen={isModalOpen} />
-            <PdfDownloader />
+            <PdfDownloader
+              props={["Uuid", "ADLs", "Date", "Notes"]}
+              variant={"ADL Table"}
+              patientId={patientId}
+            />
           </div>
         </div>
 
@@ -138,8 +142,8 @@ const Adls = () => {
             optionsOrderedBy={optionsOrderedBy}
             optionsSortBy={optionsSortBy}
             term={term}
-            setTerm={setTerm} 
-            setCurrentPage={setPageNumber} 
+            setTerm={setTerm}
+            setCurrentPage={setPageNumber}
           />
         </div>
       </div>
@@ -191,13 +195,14 @@ const Adls = () => {
                       <ResuableTooltip text={adl.adl_notes} />
                     </td>
                     <td className="relative py-3 pl-6">
-                    <p
-                            onClick={() => {
-                              isModalOpen(true);
-                              setIsEdit(true);
-                              setSelectedAdl(adl);
-                            }}
-                       className="absolute right-[40px] top-[11px]">
+                      <p
+                        onClick={() => {
+                          isModalOpen(true);
+                          setIsEdit(true);
+                          setSelectedAdl(adl);
+                        }}
+                        className="absolute right-[40px] top-[11px]"
+                      >
                         <Edit></Edit>
                       </p>
                     </td>

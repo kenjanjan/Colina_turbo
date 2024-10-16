@@ -23,5 +23,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Set the command to run the Next.js application
-# Run NextJS app
-CMD ["./node_modules/next/dist/bin/next", "start"]
+CMD ["npm", "start"]

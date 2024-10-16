@@ -73,7 +73,7 @@ export class LabResults {
   @JoinColumn({ name: 'id' }) // Specify the column name for the primary key
   labFile?: LabResultsFiles;  
 
-
-  @OneToOne(() => OrdersLaboratory, (order_laboratory) => order_laboratory.lab)
+  @OneToOne(() => OrdersLaboratory, (order_laboratory) => order_laboratory.lab, { cascade: true })
+  @JoinColumn()
   order_laboratory?: OrdersLaboratory;
 }

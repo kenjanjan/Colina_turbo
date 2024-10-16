@@ -38,52 +38,14 @@ export class PrescriptionsService {
     @InjectRepository(MedicationLogs)
     private medicationLogsRepository: Repository<MedicationLogs>,
     private readonly prescriptionFilesService: PrescriptionFilesService,
- 
+
     private readonly ordersService: OrdersService,
     private readonly ordersPrescriptionsService: OrdersPrescriptionsService,
     private readonly appointmentsService: AppointmentsService,
 
     private idService: IdService, // Inject the IdService
   ) { }
-  //CREATE Prescriptions INFO
-  // async createPrescriptions(
-  //   patientUuid: string,
-  //   prescriptionData: CreatePrescriptionsInput,
-  // ): Promise<Prescriptions> {
-  //   const { id: patientId } = await this.patientsRepository.findOne({
-  //     select: ['id'],
-  //     where: { uuid: patientUuid },
-  //   });
-  //   const existingPrescriptions = await this.prescriptionsRepository.findOne({
-  //     where: {
-  //       name: Like(`%${prescriptionData.name}%`),
-  //       patientId: patientId,
-  //     },
-  //   });
 
-  //   if (existingPrescriptions) {
-  //     throw new ConflictException('Prescriptions already exists.');
-  //   }
-
-  //   const newPrescriptions = new Prescriptions();
-
-  //   const uuidPrefix = 'PRC-'; // Customize prefix as needed
-  //   const uuid = this.idService.generateRandomUUID(uuidPrefix);
-
-  //   newPrescriptions.uuid = uuid;
-  //   newPrescriptions.patientId = patientId; // Assign patientId
-  //   Object.assign(newPrescriptions, prescriptionData);
-  //   const savedPrescription =
-  //     await this.prescriptionsRepository.save(newPrescriptions);
-  //   const result = { ...savedPrescription };
-  //   delete result.patientId;
-  //   delete result.deletedAt;
-  //   delete result.updatedAt;
-  //   delete result.id;
-
-  //   await this.createTimeGraphPrescription(newPrescriptions.uuid);
-  //   return result;
-  // }
   async createPrescriptions(
     patientUuid: string,
     prescriptionData: CreatePrescriptionsInput,
@@ -111,7 +73,7 @@ export class PrescriptionsService {
     const appointmentId = await this.appointmentsService.findAppointmentIdByUuid(appointmentUuid);
 
     // Step 4: Create a new order linked to the appointment
-    const orderDto = { uuid: this.idService.generateRandomUUID('ORD-'), appointmentId, orderDate: new Date().toISOString(), patientId: patientId, orderType: 'prescription' };
+    const orderDto = { uuid: this.idService.generateRandomUUID('ORD-'), appointmentId, orderDate: new Date().toISOString(), patientId: patientId, orderType: 'prescription', status: 'active' };
     const savedOrder = await this.ordersService.create(orderDto); // Use the OrdersService
 
     // Step 5: Create and save the new prescription
@@ -127,6 +89,7 @@ export class PrescriptionsService {
       uuid: this.idService.generateRandomUUID('ORD-PRC-'),
       prescriptionId: savedPrescription.id,
       orderId: savedOrder.id,
+      status: 'active'
     };
     await this.ordersPrescriptionsService.create(orderPrescriptionDto); // Use the OrdersPrescriptionsService
 
@@ -216,7 +179,7 @@ export class PrescriptionsService {
             newMedicationLogs.hasDuration =
               prescription.startDate != '' ||
                 undefined ||
-                prescription.prescriptionType === 'PRN'
+                (null && prescription.prescriptionType === 'PRN')
                 ? 'true'
                 : prescription.prescriptionType === 'ASCH'
                   ? 'true'
@@ -415,36 +378,100 @@ export class PrescriptionsService {
     return prescriptions;
   }
 
+  // async updatePrescriptions(
+  //   id: string,
+  //   updatePrescriptionsInput: UpdatePrescriptionsInput,
+  // ): Promise<Prescriptions> {
+  //   const { ...updateData } = updatePrescriptionsInput;
+  //   const prescriptions = await this.prescriptionsRepository.findOne({
+  //     where: { uuid: id },
+  //   });
+  //   if (!prescriptions) {
+  //     throw new NotFoundException(`Prescriptions ID-${id}  not found.`);
+  //   }
+
+  //   // Check if the frequency has been updated
+  //   if (
+  //     updateData.frequency &&
+  //     updateData.frequency !== prescriptions.frequency
+  //   ) {
+  //     // Update the frequency and save the prescription
+  //     prescriptions.frequency = updateData.frequency;
+  //     await this.prescriptionsRepository.save(prescriptions);
+
+  //     // Recreate medication logs based on the new frequency
+  //     await this.createTimeGraphPrescription(id);
+  //   } else {
+  //     // If frequency is not updated, simply update the prescription data
+  //     Object.assign(prescriptions, updateData);
+  //     await this.prescriptionsRepository.save(prescriptions);
+  //   }
+
+  //   return prescriptions;
+  // }
   async updatePrescriptions(
     id: string,
     updatePrescriptionsInput: UpdatePrescriptionsInput,
   ): Promise<Prescriptions> {
     const { ...updateData } = updatePrescriptionsInput;
+
+    // Step 1: Retrieve the existing prescription
     const prescriptions = await this.prescriptionsRepository.findOne({
       where: { uuid: id },
     });
+    console.log(id, "prescription id");
     if (!prescriptions) {
-      throw new NotFoundException(`Prescriptions ID-${id}  not found.`);
+      throw new NotFoundException(`Prescriptions ID-${id} not found.`);
     }
 
-    // Check if the frequency has been updated
-    if (
-      updateData.frequency &&
-      updateData.frequency !== prescriptions.frequency
-    ) {
-      // Update the frequency and save the prescription
+    // Step 2: Update the prescription
+    if (updateData.frequency && updateData.frequency !== prescriptions.frequency) {
       prescriptions.frequency = updateData.frequency;
       await this.prescriptionsRepository.save(prescriptions);
-
-      // Recreate medication logs based on the new frequency
       await this.createTimeGraphPrescription(id);
     } else {
-      // If frequency is not updated, simply update the prescription data
       Object.assign(prescriptions, updateData);
       await this.prescriptionsRepository.save(prescriptions);
     }
 
-    return prescriptions;
+    // Step 3: Find the linked orders_prescriptions entry
+    const ordersPrescriptions = await this.ordersPrescriptionsService.findByPrescriptionId(prescriptions.id);
+    if (!ordersPrescriptions) {
+      throw new NotFoundException(`Orders-Prescriptions relation not found for Prescription ID-${prescriptions.id}.`);
+    }
+    console.log(prescriptions.id, "prescriptions.id id");
+
+    // Step 5: Update statuses
+    if (updateData.status) {
+      prescriptions.status = updateData.status;
+      ordersPrescriptions.status = updateData.status;
+      prescriptions.status = updateData.status;
+    }
+    console.log("Updating statuses...");
+    // Enhanced error handling
+    try {
+      await this.prescriptionsRepository.save(prescriptions);
+      await this.ordersPrescriptionsService.updateStatus(prescriptions.id, ordersPrescriptions.status);
+      await this.prescriptionsRepository.save(prescriptions);
+
+      console.log("Updated Prescription:", prescriptions);
+
+      await this.ordersPrescriptionsService.updateStatus(prescriptions.id, ordersPrescriptions.status);
+      console.log("Updated OrdersPrescriptions:", ordersPrescriptions);
+
+    } catch (error) {
+      console.error("Error updating statuses:", error);
+      throw new Error("Failed to update statuses due to an error.");
+    }
+
+    // Step 6: Prepare the final result
+    const result = { ...prescriptions };
+    delete result.patientId;
+    delete result.deletedAt;
+    delete result.updatedAt;
+    delete result.id;
+
+    return result; // Return the updated prescription
   }
 
   async softDeletePrescriptions(

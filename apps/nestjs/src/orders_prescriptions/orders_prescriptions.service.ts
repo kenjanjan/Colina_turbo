@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateOrdersPrescriptionDto } from './dto/create-orders_prescription.dto';
 import { OrdersPrescriptions } from './entities/orders_prescription.entity'; // Adjust import based on your structure
@@ -34,6 +34,24 @@ export class OrdersPrescriptionsService {
     const orderPrescription = this.ordersPrescriptionsRepository.create(createOrdersPrescriptionDto);
     return await this.ordersPrescriptionsRepository.save(orderPrescription);
   }
+  async findByPrescriptionId(prescriptionId: number): Promise<OrdersPrescriptions> {
+    const orderPrescription = await this.ordersPrescriptionsRepository.findOne({
+      where: { prescriptionId: prescriptionId },
+    });
+    if (!orderPrescription) {
+      throw new NotFoundException(`Order-Prescription with Prescription ID-${prescriptionId} not found.`);
+    }
+    console.log(orderPrescription,"orderpresc id")
+    console.log(prescriptionId,"prescriptionId id")
+    return orderPrescription;
+  }
+  
+  async updateStatus(id: number, status: string): Promise<OrdersPrescriptions> {
+    const orderPrescription = await this.findByPrescriptionId(id);
+    orderPrescription.status = status;
+    return await this.ordersPrescriptionsRepository.save(orderPrescription);
+  }
+  
   async findPrescriptionOrdersByPatientUuid(
     patientUuid: string,
     term: string = '',
@@ -64,6 +82,14 @@ export class OrdersPrescriptionsService {
             'o.uuid AS o_uuid',                  // Order UUID
             'o.orderType AS o_orderType',        // Order Type
             'a.uuid AS a_uuid',                  // Appointment UUID
+            'a.appointmentDoctor AS appointmentDoctor',
+            'a.appointmentType AS appointmentType',
+            'a.appointmentTime AS appointmentTime',
+            'a.appointmentDate AS appointmentDate',
+            'a.appointmentEndTime AS appointmentEndTime',
+            'a.appointmentStatus AS appointmentStatus',
+            'a.rescheduleReason AS rescheduleReason',
+            'a.details AS details',
             'o.orderDate AS o_orderDate',        // Date Issued
             'p.name AS p_name',                  // Medication Name
             'p.dosage AS p_dosage',              // Dosage
@@ -74,8 +100,9 @@ export class OrdersPrescriptionsService {
             'p.startDate AS p_startDate',        // Start Date
             'p.endDate AS p_endDate'             // End Date
         ])
-        .orderBy(`${sortBy}`, sortOrder);
-
+        .orderBy(`${sortBy}`, sortOrder)
+        .offset(skip)
+        .limit(perPage);
 
     // Filter by status if provided
     if (filterStatus && filterStatus.length > 0) {
@@ -86,15 +113,14 @@ export class OrdersPrescriptionsService {
     if (term) {
         ordersQueryBuilder.andWhere(
             new Brackets((qb) => {
-                qb.andWhere('op.uuid ILIKE :searchTerm', { searchTerm })
-                    .orWhere('p.name ILIKE :searchTerm', { searchTerm });
+                qb.andWhere('o.uuid ILIKE :searchTerm', { searchTerm })
+                    .orWhere('p.name ILIKE :searchTerm', { searchTerm })
+                    .orWhere('p.uuid ILIKE :searchTerm', { searchTerm });
             })
         );
     }
 
     const rawOrders = await ordersQueryBuilder
-        .skip(skip)
-        .take(perPage)
         .getRawMany();
 
     const totalCount = await ordersQueryBuilder.getCount();

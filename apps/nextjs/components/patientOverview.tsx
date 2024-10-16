@@ -90,7 +90,7 @@ export default function PatientOverviewComponent({
     },
     {
       label: "Orders",
-      url: `/patient-overview/${params.id}/orders`,
+      url: `/patient-overview/${params.id}/orders/prescription`,
     },
   ];
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -501,7 +501,6 @@ export default function PatientOverviewComponent({
                         (tabUrl === "prorenata" && tab.label === "MAR") ||
                         (tabUrl === "dietary" && tab.label === "Orders") ||
                         (tabUrl === "laboratory" && tab.label === "Orders") ||
-                        (tabUrl === "prescription" && tab.label === "Orders") ||
                         (tabUrl === "incident-report" &&
                           tab.label === "Notes") ||
                         (tabUrl === "archived" && tab.label === "Forms")

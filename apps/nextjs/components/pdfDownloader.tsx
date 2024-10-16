@@ -27,15 +27,18 @@ import { fetchPrescriptionByPatient } from "@/app/api/prescription-api/prescript
 import { fetchFormsByPatient } from "@/app/api/forms-api/forms.api";
 import { fetchAppointmentsByPatient } from "@/app/api/appointments-api/appointments.api";
 import { fetchVaccinationsByPatient } from "@/app/api/vaccinations-api/vaccinations.api";
+import { fetchAdlsByPatient } from "@/app/api/adls-api/adls-api";
+import { string } from "zod";
 
 const PdfDownloader = ({ props, variant, patientId }: any) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">("ASC");
-  const [filterStatusFromCheck, setFilterStatusFromCheck] = useState<string[]>([]);
+  const [filterStatusFromCheck, setFilterStatusFromCheck] = useState<string[]>(
+    [],
+  );
   const [filterTypeFromCheck, setFilterTypeFromCheck] = useState<string[]>([]);
-  
-  
+
   const handleDownloadPDF = async () => {
     setIsLoading(true);
     if (variant === "Due Medication Table") {
@@ -711,6 +714,7 @@ const PdfDownloader = ({ props, variant, patientId }: any) => {
         setIsLoading(false);
       }
     }
+   
     if (variant === "Forms Table" || variant === "Archived Forms Table") {
       try {
         const formsList = await fetchFormsByPatient(
@@ -812,7 +816,7 @@ const PdfDownloader = ({ props, variant, patientId }: any) => {
             Vaccinator_Name: d.vaccination_vaccinatorName,
             Dosage_seq: d.vaccination_dosageSequence,
             Vacc_Manufacturer: d.vaccination_vaccineManufacturer,
-            Health_Facility: d.vaccination_healthFacility
+            Health_Facility: d.vaccination_healthFacility,
           }));
 
           downloadPdf(jsonFile, props, variant);
@@ -890,6 +894,65 @@ const PdfDownloader = ({ props, variant, patientId }: any) => {
         setIsLoading(false);
       }
     }
+    // adl
+    if (variant === "ADL Table") {
+      try {
+        const adlsList = await fetchAdlsByPatient(
+          patientId,
+          "",
+          1,
+          "createdAt",
+          "DESC",
+          0,
+          router,
+        );
+
+        console.log(adlsList, "adlsList");
+        if (adlsList.data.length === 0) {
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: "adlsList is empty",
+            action: (
+              <ToastAction
+                altText="Try again"
+                onClick={() => {
+                  window.location.reload();
+                }}
+              >
+                Try again
+              </ToastAction>
+            ),
+          });
+          setIsLoading(false);
+        } else {
+          let jsonFile: {
+            Uuid: string;
+            ADLs: string;
+            Date: string;
+
+            Notes: string;
+          }[] = adlsList.data.map((d: any) => ({
+            Uuid: d.adl_uuid,
+            ADLs: d.adl_adl,
+            Date: formatCreatedAtDate(d.adl_createdAt),
+            Notes: d.adl_notes,
+          }));
+
+          downloadPdf(jsonFile, props, variant);
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching adlsList:", error);
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: "Failed to fetch adlsList",
+        });
+        setIsLoading(false);
+      }
+    }
+    //
   };
 
   return (

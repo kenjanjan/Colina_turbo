@@ -12,11 +12,31 @@ export class OrdersDietaryController {
     return this.ordersDietaryService.create(createOrdersDietaryDto);
   }
 
-  @Get()
-  findAll() {
-    return this.ordersDietaryService.findAll();
+  @Post('patient/:patientId')
+  async getDietaryOrder(
+      @Param('patientId') patientUuid: string,
+      @Body() body: {
+          term?: string; // Made optional with a default value in the service method
+          page: number;
+          sortBy: string;
+          sortOrder: 'ASC' | 'DESC';
+          perPage: number;
+          filterStatus?: string[]; // Made optional with a default value in the service method
+      }
+  ): Promise<{
+      data: any[];
+      totalPages: number;
+      currentPage: number;
+      totalCount: number;
+  }> {
+    const { term = '', page = 1, sortBy = 'dateIssued', sortOrder = 'DESC', perPage = 4, filterStatus = [] } = body;
+      
+      return this.ordersDietaryService.findDietaryOrdersByPatientUuid(patientUuid, term, filterStatus, sortBy, sortOrder, page, perPage);
   }
-
+  @Patch('update/:orderUuid')
+  updateDietaryOrder(@Param('orderUuid') id: string, @Body() updateDietaryOrder: UpdateOrdersDietaryDto) {
+    return this.ordersDietaryService.updateOrdersDietary(id, updateDietaryOrder);
+  }
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.ordersDietaryService.findOne(+id);

@@ -8,9 +8,10 @@ import TableTop from "@/components/reusable/tableTop";
 import View from "@/components/shared/buttons/view";
 import DropdownMenu from "@/components/dropdown-menu";
 import { useEditContext } from "../../editContext";
-import { cn } from "@/lib/utils";
+import { formatCreatedAtDate } from "@/lib/utils";
 import OrderModalContent from "@/components/modal-content/order-modal-content";
 import Modal from "@/components/reusable/modal";
+import { fetchOrdersDietaryByPatient } from "@/app/api/orders/orders-dietary-api";
 
 const Dietary = () => {
   const router = useRouter();
@@ -22,22 +23,28 @@ const Dietary = () => {
 
   const patientId = params.id.toUpperCase();
   const [term, setTerm] = useState<string>("");
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(5);
-  const [pageNumber, setPageNumber] = useState("");
-  const [sortBy, setSortBy] = useState("dateIssued");
-  const [sortOrder, setSortOrder] = useState("ASC");
+
   const [isOpenOrderedBy, setIsOpenOrderedBy] = useState(false);
   const [isOpenSortedBy, setIsOpenSortedBy] = useState(false);
-  const [totalOrder, setTotalOrder] = useState<number>(0);
+  // const [totalOrder, setTotalOrder] = useState<number>(0);
   const [isOpenFilterStatus, setIsOpenFilterStatus] = useState(false);
   const [isOrder, setIsOrder] = useState(false);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [selectedData, setSelectedData] = useState<any>({});
   const [isOpen, setIsOpen] = useState(false);
+
   const [filterStatusFromCheck, setFilterStatusFromCheck] = useState<string[]>(
     [],
   );
+  const [orderDietaryList, setOrderDietaryList] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [pageNumber, setPageNumber] = useState("");
+  const [sortBy, setSortBy] = useState("");
+  const [sortOrder, setSortOrder] = useState("ASC");
   const { isOpenHovered } = useEditContext();
   console.log(isOpenHovered, "isOpenHovered");
   const optionsFilterStatus = [
@@ -50,65 +57,6 @@ const Dietary = () => {
 
     // Here you can further process the checked filters or update other state as needed
   };
-
-  const mockPrescriptions = [
-    {
-      orderUid: "ORD-AEDB6CN2",
-      dateIssued: "Apr 21 2024",
-      dietary_requirement: "Pure Diet",
-      status: "Active",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      dateIssued: "Apr 21 2024",
-      dietary_requirement: "Pure Diet",
-      status: "Inactive",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      dateIssued: "Apr 21 2024",
-      dietary_requirement: "Pure Diet",
-      status: "Inactive",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      dateIssued: "Apr 21 2024",
-      dietary_requirement: "Pure Diet",
-      status: "Active",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      dateIssued: "Apr 21 2024",
-      dietary_requirement: "Pure Diet",
-      status: "Inactive",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      dateIssued: "Apr 21 2024",
-      dietary_requirement: "Pure Diet",
-      status: "Inactive",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      dateIssued: "Apr 21 2024",
-      dietary_requirement: "Pure Diet",
-      status: "Inactive",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    },
-  ];
 
   const handleOrderOptionClick = (option: string) => {
     setIsOpenOrderedBy(false);
@@ -141,42 +89,36 @@ const Dietary = () => {
     { label: "NOTES", onClick: handleSortOptionClick },
   ]; // end of orderby & sortby functions
 
-  const handleGoToPage = (e: React.MouseEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const pageNumberInt = parseInt(pageNumber, 10);
-    if (
-      !isNaN(pageNumberInt) &&
-      pageNumberInt > 0 &&
-      pageNumberInt <= totalPages
-    ) {
-      setCurrentPage(pageNumberInt);
-    }
-  };
-
-  const perPage = 4; // Set entries per page
-
-  // Function to paginate data
-  const paginate = (data: any, currentPage: any, perPage: any) => {
-    const offset = (currentPage - 1) * perPage;
-    return data.slice(offset, offset + perPage);
-  };
-
-  // Use the function to get the paginated data
-  const paginatedPrescriptions = paginate(
-    mockPrescriptions,
-    currentPage,
-    perPage,
-  );
-
   useEffect(() => {
     const fetchData = async () => {
-      const totalPages = Math.ceil(mockPrescriptions.length / 4);
-      setTotalPages(totalPages);
-      setTotalOrder(mockPrescriptions.length);
+      try {
+        const response = await fetchOrdersDietaryByPatient(
+          patientId,
+          term,
+          currentPage,
+          sortBy,
+          "ASC",
+          4,
+          filterStatusFromCheck,
+          router,
+        );
+        setOrderDietaryList(response.data);
+        setTotalPages(response.totalPages);
+        setTotalOrders(response.totalCount);
+        console.log(response, "denn");
+      } catch (error: any) {
+        setError(error.message);
+      }
     };
-
     fetchData();
-  }, [currentPage, sortOrder, sortBy, term]);
+  }, [
+    currentPage,
+    term,
+    sortOrder,
+    sortBy,
+    isSuccessOpen,
+    filterStatusFromCheck,
+  ]);
 
   const isModalOpen = (isOpen: boolean) => {
     setIsOpen(isOpen);
@@ -220,7 +162,7 @@ const Dietary = () => {
             </div>
             <div>
               <p className="my-1 h-[23px] text-[15px] font-normal text-[#64748B]">
-                Total of {totalOrder} Dietary Orders
+                Total of {totalOrders} Dietary Orders
               </p>
             </div>
           </div>
@@ -291,19 +233,21 @@ const Dietary = () => {
             </tr>
           </thead>
           <tbody className="h-[254px]">
-            {paginatedPrescriptions.map((prescription: any, index: any) => (
+            {orderDietaryList.map((prescription: any, index: any) => (
               <tr
                 key={index}
                 className="group h-[63px] border-b text-[15px] hover:bg-[#f4f4f4]"
               >
                 <td className="w-[200px] pl-4 text-[15px] font-normal">
-                  {prescription.orderUid}
+                  {prescription.orderuuid}
                 </td>
                 <td className="w-[200px]">
-                  <ResuableTooltip text={prescription.dateIssued} />
+                  <ResuableTooltip
+                    text={formatCreatedAtDate(prescription.dateissued)}
+                  />
                 </td>
                 <td className="w-[200px]">
-                  <ResuableTooltip text={prescription.dietary_requirement} />
+                  <ResuableTooltip text={prescription.dietary} />
                 </td>
                 <td className="w-[200px]">
                   <span
@@ -322,10 +266,13 @@ const Dietary = () => {
                 </td>
 
                 <td className="relative py-3 pl-4">
-                  <p className="absolute right-[40px] top-[11px]" onClick={()=>{
-                    setSelectedData(prescription);
-                    setIsOrderModalOpen(true);
-                  }}>
+                  <p
+                    className="absolute right-[40px] top-[11px]"
+                    onClick={() => {
+                      setSelectedData(prescription);
+                      setIsOrderModalOpen(true);
+                    }}
+                  >
                     <View />
                   </p>
                 </td>

@@ -1,13 +1,16 @@
+import { createInitialLabOrder } from "@/app/api/lab-results-api/lab-results.api";
+import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { useToast } from "../ui/use-toast";
 interface LaboratoryOrderCategoryProps {
   setIsOrder?: (value: boolean) => void;
   isModalOpen: (value: boolean) => void;
   setIsOrderModalOpen: (value: boolean) => void;
-  appointmentId?: string; 
+  appointmentId?: string;
   onSuccess: () => void;
   onFailed: () => void;
   setErrorMessage: (message: string) => void;
-  isSubmitted?: boolean; 
+  isSubmitted?: boolean;
 }
 const LaboratoryOrderCategory = ({
   setIsOrder,
@@ -17,10 +20,37 @@ const LaboratoryOrderCategory = ({
   onSuccess,
   onFailed,
   setErrorMessage,
-}:LaboratoryOrderCategoryProps) => {
-  const [isSubmitted,setIsSubmitted] = useState(false);
+}: LaboratoryOrderCategoryProps) => {
+  const params = useParams<{
+    id: any;
+    tag: string;
+    item: string;
+  }>();
+  const { toast } = useToast();
+  const patientId = params.id.toUpperCase();
+  const router = useRouter();
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitted(true);
+    try {
+      const labOrder = await createInitialLabOrder(
+        patientId,
+        appointmentId,
+        router,
+      );
+      setIsOrderModalOpen(false);
+      onSuccess();
+    } catch (error) {
+      setIsOrderModalOpen(false);
+      onFailed();
+    } finally {
+      setIsSubmitted(false);
+    }
+  };
   return (
-    <div>
+    <form onSubmit={handleSubmit}>
       <div className="mt-5 flex w-full justify-end">
         <button
           onClick={() => {
@@ -45,7 +75,7 @@ const LaboratoryOrderCategory = ({
           Submit
         </button>
       </div>
-    </div>
+    </form>
   );
 };
 

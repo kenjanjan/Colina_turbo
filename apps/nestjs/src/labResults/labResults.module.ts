@@ -19,9 +19,11 @@ import { AppointmentFilesService } from 'src/appointmentsFiles/appointmentsFiles
 import { AppointmentsService } from 'src/appointments/appointments.service';
 import { AppointmentsFiles } from 'src/appointmentsFiles/entities/appointmentsFiles.entity';
 import { Appointments } from 'src/appointments/entities/appointments.entity';
+import { OrdersDietary } from 'src/orders_dietary/entities/orders_dietary.entity';
+import { OrdersDietaryService } from 'src/orders_dietary/orders_dietary.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LabResults, LabResultsFiles, Patients, EmergencyContacts, Orders, AppointmentsFiles,Appointments,OrdersLaboratory])],
+  imports: [TypeOrmModule.forFeature([LabResults, LabResultsFiles, Patients, EmergencyContacts, Orders, AppointmentsFiles,Appointments,OrdersLaboratory, OrdersDietary])],
   providers: [
     LabResultsResolver,
     LabResultsService,
@@ -30,7 +32,7 @@ import { Appointments } from 'src/appointments/entities/appointments.entity';
     EmergencyContactsService,
     LabResultsFilesService,
     OrdersLaboratoryService,
-     OrdersService,AppointmentFilesService, AppointmentsService
+     OrdersService,AppointmentFilesService, AppointmentsService,OrdersDietaryService
   ],
 
   controllers: [LabResultsController],

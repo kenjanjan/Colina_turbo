@@ -1,136 +1,53 @@
 "use client";
-
 import PdfDownloader from "@/components/pdfDownloader";
 import Pagination from "@/components/shared/pagination";
 import { useParams, useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import ResuableTooltip from "@/components/reusable/tooltip";
-import Edit from "@/components/shared/buttons/edit";
 import TableTop from "@/components/reusable/tableTop";
 import View from "@/components/shared/buttons/view";
 import DropdownMenu from "@/components/dropdown-menu";
-import OrderModalContent from "@/components/modal-content/order-modal-content";
+import { formatCreatedAtDate } from "@/lib/utils";
 import Modal from "@/components/reusable/modal";
+import OrderModalContent from "@/components/modal-content/order-modal-content";
+import { fetchOrdersPrescriptionsByPatient } from "@/app/api/orders/orders-prescription-api";
 
 const Prescription = () => {
-  const router = useRouter();
   const params = useParams<{
     id: any;
     tag: string;
     item: string;
   }>();
-
+  const router = useRouter();
   const patientId = params.id.toUpperCase();
   const [term, setTerm] = useState<string>("");
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
   const [pageNumber, setPageNumber] = useState("");
-  const [sortBy, setSortBy] = useState("dateIssued");
+  const [isOpen, setIsOpen] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [sortBy, setSortBy] = useState("o_orderDate");
   const [sortOrder, setSortOrder] = useState("ASC");
   const [isOpenOrderedBy, setIsOpenOrderedBy] = useState(false);
   const [isOpenSortedBy, setIsOpenSortedBy] = useState(false);
-  const [totalOrder, setTotalOrder] = useState<number>(0);
-  const [isOpenFilterStatus, setIsOpenFilterStatus] = useState(false);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const [isOrder, setIsOrder] = useState(false);
   const [selectedData, setSelectedData] = useState<any>({});
+  const [isOrder, setIsOrder] = useState(false);
+  const [orderPrescriptionList, setOrderPrescriptionList] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [isErrorOpen, setIsErrorOpen] = useState(false);
   const [filterStatusFromCheck, setFilterStatusFromCheck] = useState<string[]>(
     [],
   );
-
+  const [isOpenFilterStatus, setIsOpenFilterStatus] = useState(false);
+  const handleStatusUpdate = (checkedFilters: string[]) => {
+    setFilterStatusFromCheck(checkedFilters);
+  };
   const optionsFilterStatus = [
     { label: "Active", onClick: setFilterStatusFromCheck },
     { label: "Discontinued", onClick: setFilterStatusFromCheck },
-  ]; // end of status function
-
-  const handleStatusUpdate = (checkedFilters: string[]) => {
-    setFilterStatusFromCheck(checkedFilters);
-
-    // Here you can further process the checked filters or update other state as needed
-  };
-
-  const mockPrescriptions = [
-    {
-      orderUid: "ORD-AEDB6CN2",
-      prescriptionUid: "PRC-AEDB6CB1",
-      appointmentUid: "APT-AEDB6CB1",
-      dateIssued: "Apr 21 2024",
-      expiryDate: "Jan 31 2024",
-      medicineName: "Paracetamol",
-      dosage: "500mg",
-      status: "Active",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      prescriptionUid: "PRC-AEDB6CB1",
-      appointmentUid: "APT-AEDB6CB1",
-      dateIssued: "Apr 21 2024",
-      expiryDate: "Jan 31 2024",
-      medicineName: "Paracetamol",
-      dosage: "500mg",
-      status: "Active",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      prescriptionUid: "PRC-AEDB6CB1",
-      appointmentUid: "APT-AEDB6CB1",
-      dateIssued: "Apr 21 2024",
-      expiryDate: "Jan 31 2024",
-      medicineName: "Paracetamol",
-      dosage: "500mg",
-      status: "Active",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      prescriptionUid: "PRC-AEDB6CB1",
-      appointmentUid: "APT-AEDB6CB1",
-      dateIssued: "Apr 21 2024",
-      expiryDate: "Jan 31 2024",
-      medicineName: "Paracetamol",
-      dosage: "500mg",
-      status: "Discontinued",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      prescriptionUid: "PRC-AEDB6CB1",
-      appointmentUid: "APT-AEDB6CB1",
-      dateIssued: "Apr 21 2024",
-      expiryDate: "Jan 31 2024",
-      medicineName: "Paracetamol",
-      dosage: "500mg",
-      status: "Active",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      prescriptionUid: "PRC-AEDB6CB1",
-      appointmentUid: "APT-AEDB6CB1",
-      dateIssued: "Apr 21 2024",
-      expiryDate: "Jan 31 2024",
-      medicineName: "Paracetamol",
-      dosage: "500mg",
-      status: "Discontinued",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      prescriptionUid: "PRC-AEDB6CB1",
-      appointmentUid: "APT-AEDB6CB1",
-      dateIssued: "Apr 21 2024",
-      expiryDate: "Jan 31 2024",
-      medicineName: "Paracetamol",
-      dosage: "500mg",
-      status: "Discontinued",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      prescriptionUid: "PRC-AEDB6CB1",
-      appointmentUid: "APT-AEDB6CB1",
-      dateIssued: "Apr 21 2024",
-      expiryDate: "Jan 31 2024",
-      medicineName: "Paracetamol",
-      dosage: "500mg",
-      status: "Active",
-    },
   ];
 
   const handleOrderOptionClick = (option: string) => {
@@ -142,14 +59,26 @@ const Prescription = () => {
     }
   };
 
+  const isModalOpen = (isOpen: boolean) => {
+    setIsOpen(isOpen);
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else if (!isOpen) {
+      document.body.style.overflow = "visible";
+      setIsEdit(false);
+    }
+  };
+
   const handleSortOptionClick = (option: string) => {
     setIsOpenSortedBy(false);
-    if (option === "ADLs") {
-      setSortBy("adls");
-    } else if (option === "Date Created") {
+    if (option === "PRESCRIPTION UID") {
+      setSortBy("p");
+    } else if (option === "DATE ISSUED") {
+      setSortBy("createdAt");
+    } else if (option === "MEDICINE NAME") {
       setSortBy("createdAt");
     } else {
-      setSortBy("notes");
+      setSortBy("DOSAGE");
     }
     console.log("option", option);
   };
@@ -163,53 +92,48 @@ const Prescription = () => {
     { label: "DATE ISSUED", onClick: handleSortOptionClick },
     { label: "MEDICINE NAME", onClick: handleSortOptionClick },
     { label: "DOSAGE", onClick: handleSortOptionClick },
-  ]; // end of orderby & sortby functions
-
-  const handleGoToPage = (e: React.MouseEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const pageNumberInt = parseInt(pageNumber, 10);
-    if (
-      !isNaN(pageNumberInt) &&
-      pageNumberInt > 0 &&
-      pageNumberInt <= totalPages
-    ) {
-      setCurrentPage(pageNumberInt);
-    }
-  };
-
-  const perPage = 4; // Set entries per page
-
-  // Function to paginate data
-  const paginate = (data: any, currentPage: any, perPage: any) => {
-    const offset = (currentPage - 1) * perPage;
-    return data.slice(offset, offset + perPage);
-  };
-
-  // Use the function to get the paginated data
-  const paginatedPrescriptions = paginate(
-    mockPrescriptions,
-    currentPage,
-    perPage,
-  );
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
-      const totalPages = Math.ceil(mockPrescriptions.length / 4);
-      setTotalPages(totalPages);
-      setTotalOrder(mockPrescriptions.length);
+      try {
+        const response = await fetchOrdersPrescriptionsByPatient(
+          patientId,
+          term,
+          currentPage,
+          sortBy,
+          "ASC",
+          4,
+          filterStatusFromCheck,
+          router,
+        );
+        setOrderPrescriptionList(response.data);
+        setTotalPages(response.totalPages);
+        setTotalOrders(response.totalCount);
+        console.log(response, "responseee");
+      } catch (error: any) {
+        setError(error.message);
+      }
     };
-
     fetchData();
-  }, [currentPage, sortOrder, sortBy, term]);
-
-  const isModalOpen = (isOpen: boolean) => {
-    setIsOpen(isOpen);
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else if (!isOpen) {
-      document.body.style.overflow = "visible";
-    }
+  }, [
+    currentPage,
+    term,
+    sortOrder,
+    sortBy,
+    isSuccessOpen,
+    filterStatusFromCheck,
+  ]);
+  console.log(orderPrescriptionList, "orderPrescriptionList");
+  const onSuccess = () => {
+    setIsSuccessOpen(true);
+    isModalOpen(false);
   };
+  const onFailed = () => {
+    setIsErrorOpen(true);
+  };
+
+  
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -245,13 +169,11 @@ const Prescription = () => {
             </div>
             <div>
               <p className="my-1 h-[23px] text-[15px] font-normal text-[#64748B]">
-                Total of {totalOrder} Prescription Orders
+                Total of {totalOrders} Prescription Orders
               </p>
             </div>
           </div>
-
           <div className="flex gap-2">
-            {/* WIP */}
             <PdfDownloader
               props={[
                 "Uuid",
@@ -266,12 +188,9 @@ const Prescription = () => {
               variant={"Archived Forms Table"}
               patientId={patientId}
             />
-            {/* WIP */}
           </div>
         </div>
       </div>
-
-      {/* Search and sort */}
       <div className="w-full items-center pt-2 sm:rounded-lg">
         <TableTop
           isOpenOrderedBy={isOpenOrderedBy}
@@ -283,35 +202,36 @@ const Prescription = () => {
           setCurrentPage={setPageNumber}
         />
       </div>
-
-      {/* Prescription table */}
       <div>
         <table className="w-full table-fixed border-spacing-2 text-left rtl:text-right">
           <thead>
             <tr className="h-[70px] border-b text-[15px] font-semibold uppercase text-[#64748B]">
-              <td className="w-[170px] pl-4">ORDER UID</td>
-              <td className="w-[170px]">PRESCRIPTION UID</td>
-              <td className="w-[170px]">APPOINTMENT UID</td>
-              <td className="w-[150px]">DATE ISSUED</td>
-              <td className="w-[150px]">EXPIRY DATE</td>
-              <td className="w-[170px]">MEDICINE NAME</td>
-              <td className="w-[150px]">DOSAGE</td>
-              <td className="w-[170px]">
-                <DropdownMenu
-                  options={optionsFilterStatus.map(({ label, onClick }) => ({
-                    label,
-                    onClick: () => {
-                      // onClick(label);
-                      // console.log("label", label);
-                    },
-                  }))}
-                  open={isOpenFilterStatus}
-                  width={"165px"}
-                  statusUpdate={handleStatusUpdate} // Pass the handler function
-                  checkBox={true}
-                  title={"Status"}
-                  label={"Status"}
-                />
+              <td className="w-[200px] pl-4">ORDER UID</td>
+              <td className="w-[200px]">PRESCRIPTION UID</td>
+              <td className="w-[200px]">APPOINTMENT UID</td>
+              <td className="w-[200px]">DATE ISSUED</td>
+              <td className="w-[200px]">MEDICINE NAME</td>
+              <td className="w-[100px]">DOSAGE</td>
+              <td className="relative px-6 py-3">
+                <div
+                  className={`absolute ${filterStatusFromCheck?.length > 0 ? "left-[26px] top-[24px]" : "left-[26px] top-[24px]"}`}
+                >
+                  <DropdownMenu
+                    options={optionsFilterStatus.map(({ label, onClick }) => ({
+                      label,
+                      onClick: () => {
+                        // onClick(label);
+                        // console.log("label", label);
+                      },
+                    }))}
+                    open={isOpenFilterStatus}
+                    width={"165px"}
+                    statusUpdate={handleStatusUpdate} // Pass the handler function
+                    checkBox={true}
+                    title={"Status"}
+                    label={"Status"}
+                  />
+                </div>
               </td>
               <td className="relative">
                 <p className="absolute right-[80px] top-[24px]">Action</p>
@@ -319,67 +239,74 @@ const Prescription = () => {
             </tr>
           </thead>
           <tbody className="h-[254px]">
-            {paginatedPrescriptions.map((prescription: any, index: any) => (
-              <tr
-                key={index}
-                className="group h-[63px] border-b text-[15px] hover:bg-[#f4f4f4]"
-              >
-                <td className="w-[170px] pl-4 text-[15px] font-normal">
-                  {prescription.orderUid}
-                </td>
-                <td className="w-[170px]">
-                  <ResuableTooltip text={prescription.prescriptionUid} />
-                </td>
-                <td className="w-[170px]">
-                  <ResuableTooltip text={prescription.appointmentUid} />
-                </td>
-                <td className="w-[150px]">
-                  <ResuableTooltip text={prescription.dateIssued} />
-                </td>
-                <td className="w-[150px]">
-                  {" "}
-                  <ResuableTooltip text={prescription.expiryDate} />
-                </td>
-                <td className="w-[170px]">
-                  {" "}
-                  <ResuableTooltip text={prescription.medicineName} />
-                </td>
-                <td className="w-[150px]">
-                  {" "}
-                  <ResuableTooltip text={prescription.dosage} />
-                </td>
-                <td className="w-[170px]">
-                  <span
-                    className={`flex w-[109px] items-center justify-center rounded-[30px] py-1 font-semibold ${
-                      prescription.status === "Discontinued"
-                        ? "bg-[#FFE8EC] text-[#EF4C6A]"
-                        : "bg-[#CCFFDD] text-[#17C653]"
-                    }`}
-                  >
-                    {prescription.status === "Discontinued"
-                      ? "Discontinued"
-                      : "Active"}
-                  </span>
-                </td>
-                <td className="relative py-3 pl-6">
-                  <p
-                    className="absolute right-[40px] top-[11px]"
-                    onClick={() => {
-                      setIsOrderModalOpen(true);
-                      setSelectedData(prescription);
-                    }}
-                  >
-                    <View />
-                    {/* <Edit></Edit> */}
-                  </p>
+            {orderPrescriptionList.length === 0 && (
+              <tr className="h-full">
+                <td className="border-1 flex h-full items-center justify-center py-5">
+                  <p className="sub-title text-center">No logs yet</p>
                 </td>
               </tr>
-            ))}
+            )}
+            {orderPrescriptionList.length > 0 && (
+              <>
+                {orderPrescriptionList.map((ordersPrescription, index) => (
+                  <tr
+                    key={index}
+                    className="group h-[63px] border-b text-[15px] hover:bg-[#f4f4f4]"
+                  >
+                    <td className="w-[200px] pl-4 text-[15px] font-normal">
+                      {ordersPrescription.op_uuid}{" "}
+                    </td>
+                    <td className="w-[200px]">
+                      <ResuableTooltip text={ordersPrescription.p_uuid} />{" "}
+                    </td>
+                    <td className="w-[200px]">
+                      <ResuableTooltip text={ordersPrescription.a_uuid} />{" "}
+                    </td>
+                    <td className="w-[200px]">
+                      <ResuableTooltip
+                        text={formatCreatedAtDate(
+                          ordersPrescription.o_orderdate,
+                        )}
+                      />{" "}
+                    </td>
+                    <td className="w-[200px]">
+                      <ResuableTooltip text={ordersPrescription.p_name} />{" "}
+                     
+                    </td>
+                    <td className="w-[100px]">
+                      <ResuableTooltip text={ordersPrescription.p_dosage} />{" "}
+                    </td>
+                    <td className="relative px-6 py-3">
+                      <p
+                        className={`flex w-[109px] items-center justify-center rounded-[30px] py-1 font-semibold ${
+                          ordersPrescription.p_status === "Active"
+                            ? "bg-[#CCFFDD] text-[#17C653]"
+                            : ordersPrescription.p_status === "Discontinued"
+                              ? "bg-[#FFE8EC] text-[#EF4C6A]" // Red color for Discontinued
+                              : ""
+                        }`}
+                      >
+                        {ordersPrescription.p_status}{" "}
+                      </p>
+                    </td>
+                    <td className="relative py-3 pl-6">
+                      <p
+                        className="absolute right-[40px] top-[11px]"
+                        onClick={() => {
+                          setIsOrderModalOpen(true);
+                          setSelectedData(ordersPrescription);
+                        }}
+                      >
+                        <View />
+                      </p>
+                    </td>
+                  </tr>
+                ))}
+              </>
+            )}
           </tbody>
         </table>
       </div>
-
-      {/* Pagination */}
       <div className="flex justify-between">
         <Pagination
           totalPages={totalPages}

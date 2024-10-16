@@ -19,7 +19,7 @@ const OrderModalContent = ({
 }: ModalProps) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [category, setCategory] = useState("");
-  const [isPrn, setIsPrn] = useState<boolean>(false);
+  const [isPrn, setIsPrn] = useState<boolean>(true); // default is PRN
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { value } = e.target;
     setCategory(value);
@@ -44,11 +44,36 @@ const OrderModalContent = ({
               <p className="sub-title">Make sure to submit your details.</p>
             )}
           </div>
-          <div
+          {/* <div
             className="mt-[10px] flex cursor-pointer items-start"
             onClick={
               setIsOrder ? () => setIsOrder(false) : () => isModalOpen(false)
             }
+          >
+            <Image
+              alt="close-button"
+              width={12}
+              height={11.61}
+              src="/icons/close-modal.svg"
+            />
+          </div> */}
+
+          <div
+            className="mt-[10px] flex cursor-pointer items-start"
+            onClick={() => {
+              // Close the order if setIsOrder is true
+              if (setIsOrder) {
+                setIsOrder(false);
+              }
+
+              // Close the order modal if setIsOrderModalOpen is defined
+              if (setIsOrderModalOpen) {
+                setIsOrderModalOpen(false);
+              }
+
+              // Call isModalOpen to close the generic modal
+              isModalOpen(false);
+            }}
           >
             <Image
               alt="close-button"
@@ -107,7 +132,19 @@ const OrderModalContent = ({
               setErrorMessage={setErrorMessage}
             />
           ) : category === "Dietary" || tab === "Dietary" ? (
-            <DietaryOrderCategory data={data} tab={tab} />
+            <DietaryOrderCategory
+              data={data}
+              tab={tab}
+              setIsOrder={setIsOrder}
+              isModalOpen={isModalOpen}
+              setIsOrderModalOpen={
+                setIsOrder ? () => setIsOrder(false) : () => isModalOpen(false)
+              }
+              appointmentId={appointmentId}
+              onSuccess={onSuccess}
+              onFailed={onFailed}
+              setErrorMessage={setErrorMessage}
+            />
           ) : category === "Laboratory Result" ? (
             <LaboratoryOrderCategory
               setIsOrder={setIsOrder}

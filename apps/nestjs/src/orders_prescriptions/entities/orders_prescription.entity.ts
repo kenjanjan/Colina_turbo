@@ -31,6 +31,10 @@ export class OrdersPrescriptions {
   @Field(() => Int)
   orderId: number;
 
+  @Column({ nullable: true })
+  @Field()
+  status: string;
+
   @UpdateDateColumn({ nullable: true })
   @Field()
   updatedAt: string;

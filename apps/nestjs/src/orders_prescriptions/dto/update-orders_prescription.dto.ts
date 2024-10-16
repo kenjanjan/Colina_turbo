@@ -5,5 +5,7 @@ export class UpdateOrdersPrescriptionDto extends PartialType(CreateOrdersPrescri
     uuid: string;
     prescriptionId: number;
     orderId: number;
+    status: string;
+
 }
 

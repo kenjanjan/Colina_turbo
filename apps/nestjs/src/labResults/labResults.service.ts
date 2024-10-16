@@ -168,6 +168,23 @@ export class LabResultsService {
     Object.assign(labResults, updateData);
     return this.labResultsRepository.save(labResults);
   }
+
+  async getLabResultIdFromUuid(
+    Uuid: string,
+
+  ): Promise<number> {
+    const labResults = await this.labResultsRepository.findOne({
+      select: ['id'],
+      where: { uuid: Uuid },
+    });
+    if (!labResults) {
+      throw new NotFoundException(`Lab Result ID-${Uuid}  not found.`);
+    }
+    return labResults.id;
+  }
+
+
+
   async softDeleteLabResults(id: string): Promise<{ message: string, deletedLabResult: LabResults }> {
 
     // Find the patient record by ID

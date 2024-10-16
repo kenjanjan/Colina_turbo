@@ -18,7 +18,15 @@ import ResuableTooltip from "@/components/reusable/tooltip";
 import { formatTableDate } from "@/lib/utils";
 import PdfDownloader from "@/components/pdfDownloader";
 
-import { getBloodGlucoseCategoryClass, getHdlCholesterolCategoryClass, getHemoglobinA1cCategoryClass, getLdlCholesterolCategoryClass, getRowClassName, getTotalCholesterolCategoryClass, getTriglyceridesCategoryClass } from "@/lib/valuesCategory/labResultsCategories";
+import {
+  getBloodGlucoseCategoryClass,
+  getHdlCholesterolCategoryClass,
+  getHemoglobinA1cCategoryClass,
+  getLdlCholesterolCategoryClass,
+  getRowClassName,
+  getTotalCholesterolCategoryClass,
+  getTriglyceridesCategoryClass,
+} from "@/lib/valuesCategory/labResultsCategories";
 export default function Laboratoryresults() {
   const router = useRouter();
   if (typeof window === "undefined") {
@@ -82,7 +90,7 @@ export default function Laboratoryresults() {
           term,
           currentPage,
           sortBy,
-          sortOrder as "ASC" | "DESC",  
+          sortOrder as "ASC" | "DESC",
           4,
           router,
         );
@@ -346,15 +354,16 @@ export default function Laboratoryresults() {
                         }}
                         className="absolute right-[146px] top-[11px]"
                       >
-                    
-                        <Edit  className={getRowClassName(
-                      labResult.labResults_hemoglobinA1c,
-                      labResult.labResults_fastingBloodGlucose,
-                      labResult.labResults_totalCholesterol,
-                      labResult.labResults_ldlCholesterol,
-                      labResult.labResults_ldlCholesterol,
-                      labResult.labResults_triglycerides,
-                    )}/>
+                        <Edit
+                          className={getRowClassName(
+                            labResult.labResults_hemoglobinA1c,
+                            labResult.labResults_fastingBloodGlucose,
+                            labResult.labResults_totalCholesterol,
+                            labResult.labResults_ldlCholesterol,
+                            labResult.labResults_ldlCholesterol,
+                            labResult.labResults_triglycerides,
+                          )}
+                        />
                       </p>
                       <p
                         onClick={() => {
@@ -365,14 +374,16 @@ export default function Laboratoryresults() {
                         }}
                         className="absolute right-[40px] top-[11px]"
                       >
-                        <View className={getRowClassName(
-                      labResult.labResults_hemoglobinA1c,
-                      labResult.labResults_fastingBloodGlucose,
-                      labResult.labResults_totalCholesterol,
-                      labResult.labResults_ldlCholesterol,
-                      labResult.labResults_ldlCholesterol,
-                      labResult.labResults_triglycerides,
-                    )}/> 
+                        <View
+                          className={getRowClassName(
+                            labResult.labResults_hemoglobinA1c,
+                            labResult.labResults_fastingBloodGlucose,
+                            labResult.labResults_totalCholesterol,
+                            labResult.labResults_ldlCholesterol,
+                            labResult.labResults_ldlCholesterol,
+                            labResult.labResults_triglycerides,
+                          )}
+                        />
                       </p>
                     </td>
                   </tr>
@@ -396,9 +407,11 @@ export default function Laboratoryresults() {
         <Modal
           content={
             <LabresultsModalContent
+              label="LabResultTab"
               isModalOpen={isModalOpen}
               isEdit={isEdit}
               labResultData={labResultData}
+              appointmentData={true}
               onSuccess={onSuccess}
               setIsUpdated={setIsUpdated}
             />

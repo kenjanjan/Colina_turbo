@@ -91,7 +91,6 @@ const Appointment = () => {
     }
   };
   const [appointmentData, setAppointmentData] = useState<any[]>([]);
-
   const [patientAppointments, setPatientAppointments] = useState<any[]>([]);
   const [term, setTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("DESC");
@@ -492,7 +491,7 @@ const Appointment = () => {
                         <p
                           onClick={() => {
                             isModalOpen(true);
-                            setIsEdit(true);
+                            setIsEdit(false);
                             setAppointmentData(appointments);
                           }}
                           className="absolute right-[253px] top-[11px]"

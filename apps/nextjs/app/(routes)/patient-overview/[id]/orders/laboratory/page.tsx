@@ -11,6 +11,12 @@ import View from "@/components/shared/buttons/view";
 import { LabresultsModalContent } from "@/components/modal-content/labresults-modal-content";
 import Modal from "@/components/reusable/modal";
 import { SuccessModal } from "@/components/shared/success";
+import { fetchOrdersLaboratoryByPatient } from "@/app/api/orders/orders-laboratory-api";
+import { formatCreatedAtDate } from "@/lib/utils";
+import { AppointmenViewModalContent } from "@/components/modal-content/appointmentview-modal-content";
+import { fetchAppointmentsByPatient } from "@/app/api/appointments-api/appointments.api";
+import { AppointmentModalContent } from "@/components/modal-content/appointment-modal-content";
+import { LabResultsViewModalContent } from "@/components/modal-content/labresultsview-modal-content";
 
 const Laboratory = () => {
   const router = useRouter();
@@ -33,44 +39,21 @@ const Laboratory = () => {
   const [isOpenFilterStatus, setIsOpenFilterStatus] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [orderUuid, setOrderUuid] = useState("");
+  const [isViewAppointment, setIsViewAppointment] = useState(false);
+  const [isViewLabResult, setIsViewLabResult] = useState(false);
   const [filterStatusFromCheck, setFilterStatusFromCheck] = useState<string[]>(
     [],
   );
-
-  const mockLaboratory = [
-    {
-      orderUid: "ORD-AEDB6CN2",
-      dateIssued: "Apr 21 2024",
-      prescriptionUid: "PRC-AEDB6CB1",
-      appointmentUid: "LBR-7890124567891",
-      laboratoryUid: "",
-      status: "Pending",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      dateIssued: "Apr 21 2024",
-      prescriptionUid: "PRC-AEDB6CB1",
-      appointmentUid: "LBR-7890124567891",
-      laboratoryUid: "LBR-7890124567891",
-      status: "Done",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      dateIssued: "Apr 21 2024",
-      prescriptionUid: "PRC-AEDB6CB1",
-      appointmentUid: "LBR-7890124567891",
-      laboratoryUid: "LBR-7890124567891",
-      status: "Done",
-    },
-    {
-      orderUid: "ORD-AEDB6CN2",
-      dateIssued: "Apr 21 2024",
-      prescriptionUid: "PRC-AEDB6CB1",
-      appointmentUid: "LBR-7890124567891",
-      laboratoryUid: "",
-      status: "Done",
-    },
-  ];
+  const [appointmentId, setAppointmentId] = useState("");
+  const [appointmentData, setAppointmentData] = useState<any[]>([]);
+  const [orderLaboratoryList, setOrderLaboratoryList] = useState<any[]>([]);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [filterTypeFromCheck, setFilterTypeFromCheck] = useState<string[]>([]);
+  const [labResultData, setLabResultData] = useState<any[]>([]);
+  const [isEdit, setIsEdit] = useState(false);
+  const [isUpdated, setIsUpdated] = useState(false);
 
   const handleOrderOptionClick = (option: string) => {
     setIsOpenOrderedBy(false);
@@ -80,6 +63,8 @@ const Laboratory = () => {
       setSortOrder("DESC");
     }
   };
+
+  
 
   const handleSortOptionClick = (option: string) => {
     setIsOpenSortedBy(false);
@@ -104,7 +89,7 @@ const Laboratory = () => {
   ]; // end of orderby & sortby functions
 
   const optionsFilterStatus = [
-    { label: "Done", onClick: setFilterStatusFromCheck },
+    { label: "Completed", onClick: setFilterStatusFromCheck },
     { label: "Pending", onClick: setFilterStatusFromCheck },
   ]; // end of status function
 
@@ -126,27 +111,36 @@ const Laboratory = () => {
     }
   };
 
-  const perPage = 4; // Set entries per page
-
-  // Function to paginate data
-  const paginate = (data: any, currentPage: any, perPage: any) => {
-    const offset = (currentPage - 1) * perPage;
-    return data.slice(offset, offset + perPage);
-  };
-
-  // Use the function to get the paginated data
-  const paginatedPrescriptions = paginate(mockLaboratory, currentPage, perPage);
-
   useEffect(() => {
     const fetchData = async () => {
-      const totalPages = Math.ceil(mockLaboratory.length / 4);
-      filterStatusFromCheck;
-      setTotalPages(totalPages);
-      setTotalOrder(mockLaboratory.length);
+      try {
+        const response = await fetchOrdersLaboratoryByPatient(
+          patientId,
+          term,
+          currentPage,
+          sortBy,
+          "ASC",
+          4,
+          filterStatusFromCheck,
+          router,
+        );
+        setOrderLaboratoryList(response.data);
+        setTotalPages(response.totalPages);
+        setTotalOrders(response.totalCount);
+        console.log(response, "dencio");
+      } catch (error: any) {
+        setError(error.message);
+      }
     };
-
     fetchData();
-  }, [currentPage, sortOrder, sortBy, term, filterStatusFromCheck]);
+  }, [
+    currentPage,
+    term,
+    sortOrder,
+    sortBy,
+    isSuccessOpen,
+    filterStatusFromCheck,
+  ]);
 
   useEffect(() => {
     setFilterStatusFromCheck(filterStatusFromCheck);
@@ -161,13 +155,13 @@ const Laboratory = () => {
     console.log(newLabel, "new parent");
   }, [filterStatusFromCheck]);
 
-
   const isModalOpen = (isOpen: boolean) => {
     setIsOpen(isOpen);
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else if (!isOpen) {
       document.body.style.overflow = "visible";
+      setIsViewLabResult(false);
     }
   };
 
@@ -281,35 +275,44 @@ const Laboratory = () => {
             </tr>
           </thead>
           <tbody className="h-[254px]">
-            {paginatedPrescriptions.map((prescription: any, index: any) => (
+            {orderLaboratoryList.map((prescription: any, index: any) => (
               <tr
                 key={index}
                 className="group h-[63px] border-b text-[15px] hover:bg-[#f4f4f4]"
               >
                 <td className="w-[250px] pl-4 text-[15px] font-normal">
-                  {prescription.orderUid}
+                  {prescription.orderuuid}
                 </td>
 
                 <td className="w-[200px]">
-                  <ResuableTooltip text={prescription.dateIssued} />
+                  <ResuableTooltip
+                    text={formatCreatedAtDate(prescription.dateissued)}
+                  />
                 </td>
                 <td className="w-[300px]">
-                  {prescription.appointmentUid} -{" "}
+                  {prescription.appointmentuuid} -{" "}
                   <span
-                    // onclick function
+                    onClick={() => (
+                      setIsViewAppointment(true),
+                      setAppointmentData(prescription)
+                    )}
                     className="cursor-pointer text-[#64748B]"
                   >
                     View
                   </span>
                 </td>
                 <td
-                  className={`w-[300px] ${prescription.laboratoryUid ? "" : "pl-16"}`}
+                  className={`w-[300px] ${prescription.laboratoryuuid ? "" : "pl-16"}`}
                 >
-                  {prescription.laboratoryUid ? (
+                  {prescription.laboratoryuuid ? (
                     <>
-                      {prescription.laboratoryUid} -{" "}
+                      {prescription.laboratoryuuid} -{" "}
                       <span
-                        // onClick function here
+                        onClick={() => (
+                          setIsViewLabResult(true),
+                          setAppointmentData(prescription),
+                          isModalOpen(true)
+                        )}
                         className="cursor-pointer text-[#64748B]"
                       >
                         View
@@ -333,11 +336,18 @@ const Laboratory = () => {
                         : "bg-[#DFFFE8] text-[#34A853]"
                     }`}
                   >
-                    {prescription.status === "Pending" ? "Pending" : "Done"}
+                    {prescription.status === "Pending"
+                      ? "Pending"
+                      : "Completed"}
                   </span>
                 </td>
                 <td className="relative py-3 pl-6">
-                  <p className="absolute right-[40px] top-[11px]" onClick={() => isModalOpen(true)} >
+                  <p
+                    className="absolute right-[40px] top-[11px]"
+                    onClick={() => {
+                      isModalOpen(true), setOrderUuid(prescription.orderuuid);
+                    }}
+                  >
                     <View name="Add" />
                   </p>
                 </td>
@@ -361,23 +371,43 @@ const Laboratory = () => {
         <Modal
           content={
             <LabresultsModalContent
+              label={isViewLabResult ? "ViewLabResult" : "LabResultTab"}
+              orderUuid={orderUuid}
               isModalOpen={isModalOpen}
-              isEdit={false}
+              isEdit={isEdit}
               labResultData={[]}
               onSuccess={onSuccess}
               setIsUpdated={{}}
+              appointmentData={appointmentData}
             />
           }
           isModalOpen={isModalOpen}
         />
       )}
-        {isSuccessOpen && (
+
+      {isViewAppointment && (
+        <Modal
+          content={
+            <AppointmentModalContent
+              isModalOpen={isModalOpen}
+              onSuccess={onSuccess}
+              isOpen={isOpen}
+              isView={isViewAppointment}
+              appointmentData={appointmentData}
+              appointmentId={appointmentId}
+              label="sample label"
+            />
+          }
+          isModalOpen={isModalOpen}
+        />
+      )}
+      {isSuccessOpen && (
         <SuccessModal
           label="Success"
           isAlertOpen={isSuccessOpen}
           toggleModal={setIsSuccessOpen}
           isUpdated={false}
-          setIsUpdated={{}}
+          setIsUpdated={setIsUpdated}
         />
       )}
     </div>

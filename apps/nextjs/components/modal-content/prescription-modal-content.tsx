@@ -236,37 +236,37 @@ export const PrescriptionModalContent = ({
         onSuccess();
         isModalOpen(false);
       } else {
-        const prescription = await createPrescriptionOfPatient(
-          patientId,
-          formData,
-          router,
-        );
-        console.log("Prescription added successfully:", prescription);
+        // const prescription = await createPrescriptionOfPatient(
+        //   patientId,
+        //   formData,
+        //   router,
+        // );
+        // console.log("Prescription added successfully:", prescription);
 
-        // Iterate through each selected file
-        if (selectedFiles.length > 0) {
-          for (let i = 0; i < selectedFiles.length; i++) {
-            const prescriptionFileFormData = new FormData();
-            prescriptionFileFormData.append(
-              "prescriptionfile",
-              selectedFiles[i],
-              fileNames[i],
-            );
+        // // Iterate through each selected file
+        // if (selectedFiles.length > 0) {
+        //   for (let i = 0; i < selectedFiles.length; i++) {
+        //     const prescriptionFileFormData = new FormData();
+        //     prescriptionFileFormData.append(
+        //       "prescriptionfile",
+        //       selectedFiles[i],
+        //       fileNames[i],
+        //     );
 
-            // Add prescription file
-            const addPrescriptionFiles = await addPrescriptionFile(
-              prescription.uuid,
-              prescriptionFileFormData,
-            );
+        //     // Add prescription file
+        //     const addPrescriptionFiles = await addPrescriptionFile(
+        //       prescription.uuid,
+        //       prescriptionFileFormData,
+        //     );
 
-            console.log(
-              `Prescription FILE ${fileNames[i]} added successfully:`,
-              addPrescriptionFiles,
-            );
-          }
-        } else {
-          console.warn("No files selected to upload");
-        }
+        //     console.log(
+        //       `Prescription FILE ${fileNames[i]} added successfully:`,
+        //       addPrescriptionFiles,
+        //     );
+        //   }
+        // } else {
+        //   console.warn("No files selected to upload");
+        // }
         // Reset form data
         setFormData({
           prescriptionType: "",

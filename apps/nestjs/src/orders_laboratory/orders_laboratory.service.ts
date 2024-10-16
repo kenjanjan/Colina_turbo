@@ -5,9 +5,10 @@ import { IdService } from 'services/uuid/id.service';
 import {
   Brackets,
   Repository,
+  EntityManager,
 } from 'typeorm';
 import { InjectRepository, } from '@nestjs/typeorm';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { LabResults } from 'src/labResults/entities/labResults.entity';
 import { Orders } from 'src/orders/entities/order.entity';
 import { Appointments } from 'src/appointments/entities/appointments.entity';
@@ -34,7 +35,8 @@ export class OrdersLaboratoryService {
   constructor(
     @InjectRepository(OrdersLaboratory)
     private readonly ordersLaboratoryRepository: Repository<OrdersLaboratory>,
-  ) {}
+    
+  ) { }
 
   async create(createOrdersLaboratoryDto: CreateOrdersLaboratoryDto): Promise<OrdersLaboratory> {
     const orderLaboratory = this.ordersLaboratoryRepository.create({
@@ -43,9 +45,9 @@ export class OrdersLaboratoryService {
     return await this.ordersLaboratoryRepository.save(orderLaboratory);
   }
 
-  
 
- 
+
+
   async findLaboratoryOrdersByPatientUuid(
     patientUuid: string,
     term: string = '',
@@ -77,6 +79,14 @@ export class OrdersLaboratoryService {
         'order.uuid AS orderUuid',
         'order.orderType AS orderType',
         'appointment.uuid AS appointmentUuid',
+        'appointment.appointmentDoctor AS appointmentDoctor',
+        'appointment.appointmentType AS appointmentType',
+        'appointment.appointmentDate AS appointmentDate',
+        'appointment.appointmentEndTime AS appointmentEndTime',
+        'appointment.appointmentTime AS appointmentTime',
+        'appointment.appointmentStatus AS appointmentStatus',
+        'appointment.rescheduleReason AS rescheduleReason',
+        'appointment.details AS details',
         'order.orderDate AS dateIssued',
         'orders_laboratory.status AS status',
         'pa.uuid AS patientUuid',
@@ -93,8 +103,9 @@ export class OrdersLaboratoryService {
       .innerJoin('order.appointment', 'appointment')
       .innerJoin('order.patient', 'pa')
       .where('pa.uuid = :patientUuid', { patientUuid })
-      .orderBy(`${sortBy}`, sortOrder);
-  
+      .orderBy(`${sortBy}`, sortOrder)
+      .offset(skip)
+      .limit(perPage);
     // Apply filterStatus if provided
     if (filterStatus.length > 0) {
       laboratoryOrdersQueryBuilder.andWhere(
@@ -102,28 +113,26 @@ export class OrdersLaboratoryService {
         { filterStatus }
       );
     }
-  
+
     // Apply search term if provided
     if (term) {
       laboratoryOrdersQueryBuilder.andWhere(
         new Brackets((qb) => {
-          qb.andWhere('orders_laboratory.uuid ILIKE :searchTerm', { searchTerm })
+          qb.andWhere('order.uuid ILIKE :searchTerm', { searchTerm })
             .orWhere('order.orderDate::text ILIKE :searchTerm', { searchTerm });
         })
       );
     }
-  
+
     // Get the total count before applying pagination
     const totalCount = await laboratoryOrdersQueryBuilder.getCount();
-  
+
     // Apply pagination
     const laboratoryOrders: RawOrdersLaboratory[] = await laboratoryOrdersQueryBuilder
-      .skip(skip)
-      .take(perPage)
       .getRawMany();
-  
+
     const totalPages = Math.ceil(totalCount / perPage); // Calculate total pages
-  
+
     return {
       data: laboratoryOrders,
       totalPages,
@@ -131,10 +140,30 @@ export class OrdersLaboratoryService {
       totalCount,
     };
   }
-  
+
+  // Update the OrdersLaboratory with lab result ID and status
+  async updateOrdersLaboratory(orderId: number, laboratoryId: number): Promise<OrdersLaboratory> {
     
-  
-  
-  
-  
+    const orderLaboratory = await this.ordersLaboratoryRepository.findOne({
+      where: { orderId:orderId },
+    });
+    console.log(orderLaboratory, "orderlaboratory")
+    if (!orderLaboratory) {
+      throw new NotFoundException(`OrderLaboratory with orderId ${orderId} not found`);
+    }
+
+    // Update the necessary fields
+    orderLaboratory.laboratoryId = laboratoryId;
+    orderLaboratory.status = 'completed';
+
+  // Check for duplicate values
+  const existingOrderLaboratory = await this.ordersLaboratoryRepository.findOne({
+    where: { laboratoryId: orderLaboratory.laboratoryId, status: orderLaboratory.status },
+  });
+
+  if (existingOrderLaboratory) {
+    throw new ConflictException(`OrderLaboratory with laboratoryId ${orderLaboratory.laboratoryId} and status ${orderLaboratory.status} already exists`);
+  }
+    return await this.ordersLaboratoryRepository.save(orderLaboratory);
+  }
 }

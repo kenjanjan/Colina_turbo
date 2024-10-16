@@ -64,12 +64,13 @@ export class AppointmentsService {
 
     return result;
   }
-  async findAppointmentIdByUuid(appointmentUuid: string): Promise<number> {
+  async findAppointmentIdByUuid(uuid: string): Promise<number> {
     const appointment = await this.appointmentsRepository.findOne({
       select: ['id'],
-      where: { uuid: appointmentUuid },
+      where: { uuid: uuid },
     });
-
+console.log(appointment.id, "YOI")
+console.log(uuid, "YOI uuid")
     if (!appointment) {
       throw new NotFoundException('Appointment not found.');
     }
