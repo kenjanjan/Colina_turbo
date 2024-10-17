@@ -72,14 +72,28 @@ jobs:
       # Deploy Next.js to Frontend EC2 instance
       - name: Deploy Next.js to EC2 Frontend
         run: |
-          ssh -i /tmp/ec2-key.pem -o StrictHostKeyChecking=no -v  ubuntu@${{ secrets.EC2_FRONTEND_IP }} << 'EOF'
+          ssh -i /tmp/ec2-key.pem -o StrictHostKeyChecking=no -v ubuntu@${{ secrets.EC2_FRONTEND_IP }} << 'EOF'
             # Stop the current Docker container if running
-            docker stop nextjs-frontend || true
-            docker rm nextjs-frontend || true
+            CONTAINER_NAME="nextjs-frontend"
+            if sudo docker ps -q --filter "name=$CONTAINER_NAME"; then
+              echo "Stopping and removing existing container..."
+              sudo docker stop $CONTAINER_NAME
+              sudo docker rm $CONTAINER_NAME
+            else
+              echo "No existing container found."
+            fi
 
             # Pull the latest image from Docker Hub
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-frontend:latest
+            IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/nextjs-frontend:latest"
+            echo "Pulling latest image from Docker Hub..."
+            if sudo docker pull $IMAGE_NAME; then
+              echo "Image pulled successfully."
+            else
+              echo "Failed to pull image. Please check your Docker Hub credentials and image name."
+              exit 1
+            fi
 
             # Run the new container
-            sudo docker run -d -p 80:3000 --name nextjs-frontend ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-frontend:latest
+            echo "Running new container..."
+            sudo docker run -d -p 80:3000 --name $CONTAINER_NAME $IMAGE_NAME
           EOF
