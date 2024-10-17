@@ -16,8 +16,8 @@ COPY . .
 # Rebuild bcrypt to fix the binary issue
 RUN npm rebuild bcrypt --build-from-source
 
-# Run the build step to compile TypeScript (if necessary)
-RUN npm run build
+# Build the Next.js application using Turborepo
+RUN npx turbo run build
 
 # Expose the port that your NestJS app listens on
 EXPOSE 3000
