@@ -25,6 +25,13 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-backend ./apps/nestjs
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-backend
+      
+      # Upload backend Docker image as an artifact (optional)
+      - name: Upload backend image
+        uses: actions/upload-artifact@v3
+        with:
+          name: nestjs-backend-image
+          path: ./apps/nestjs
 
       # Add SSH key from PEM file
       - name: Add SSH key
@@ -68,6 +75,13 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-frontend ./apps/nextjs
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-frontend
+
+      # Upload frontend Docker image as an artifact (optional)
+      - name: Upload frontend image
+        uses: actions/upload-artifact@v3
+        with:
+          name: nextjs-frontent-image
+          path: ./apps/nextjs
 
       # Deploy Next.js to Frontend EC2 instance
       - name: Deploy Next.js to EC2 Frontend
