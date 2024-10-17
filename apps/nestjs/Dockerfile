@@ -13,6 +13,9 @@ RUN npm install
 # Copy the rest of the application code to the container
 COPY . .
 
+# Copy the .env.local file
+COPY .env.local .env.local
+
 # Rebuild bcrypt to fix the binary issue
 RUN npm rebuild bcrypt --build-from-source
 
