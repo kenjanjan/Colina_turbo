@@ -28,7 +28,7 @@ jobs:
       # Add SSH key from PEM file
       - name: Add SSH key
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ec2-key.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > /tmp/ec2-key.pem
           chmod 600 /tmp/ec2-key.pem
         shell: bash
 
