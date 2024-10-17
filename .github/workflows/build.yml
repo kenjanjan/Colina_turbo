@@ -36,14 +36,26 @@ jobs:
       - name: Deploy NestJS to EC2 Backend
         run: |
           ssh -i /tmp/ec2-key.pem -o StrictHostKeyChecking=no -v ubuntu@${{ secrets.EC2_BACKEND_IP }} << 'EOF'
-            # Stop the current Docker container if running
-            sudo docker stop nestjs-backend || true
-            sudo docker rm nestjs-backend || true
+            # Check if the container exists before stopping/removing it
+            if sudo docker ps -q --filter "name=nestjs-backend"; then
+              echo "Stopping and removing existing container..."
+              sudo docker stop nestjs-backend
+              sudo docker rm nestjs-backend
+            else
+              echo "No existing container found."
+            fi
 
             # Pull the latest image from Docker Hub
-            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-backend:latest
+            echo "Pulling latest image from Docker Hub..."
+            if sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-backend:latest; then
+              echo "Image pulled successfully."
+            else
+              echo "Failed to pull image. Please check your Docker Hub credentials and image name."
+              exit 1
+            fi
 
             # Run the new container
+            echo "Running new container..."
             sudo docker run -d -p 3000:3000 --name nestjs-backend ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-backend:latest
           EOF
 
