@@ -5,7 +5,7 @@ services:
       context: ./apps/nestjs
       dockerfile: Dockerfile
     ports:
-      - "22:3000"
+      - "3000:3000"
     environment:
       - NODE_ENV=production
 
@@ -14,7 +14,7 @@ services:
       context: ./apps/nextjs
       dockerfile: Dockerfile
     ports:
-      - "22:3001"
+      - "20:3001"
     environment:
       - NODE_ENV=production
  
