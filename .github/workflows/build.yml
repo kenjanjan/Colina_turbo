@@ -23,7 +23,7 @@ jobs:
       # Build Docker image for the backend (NestJS)
       - name: Build backend Docker image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-backend ./apps/nestjs
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/colina_turbo:backend ./apps/nestjs
 
       # Add SSH key from PEM file
       - name: Add SSH key
@@ -36,7 +36,7 @@ jobs:
         run: |
           ssh -i /tmp/ec2-key.pem -o StrictHostKeyChecking=no -v ubuntu@${{ secrets.EC2_BACKEND_IP }} << 'EOF'
             # Check if the container exists before stopping/removing it
-            CONTAINER_NAME="nestjs-backend"
+            CONTAINER_NAME="colina_turbo:backend"
 
             if sudo docker ps -q --filter "name=$CONTAINER_NAME"; then
               echo "Stopping and removing existing container..."
@@ -47,7 +47,7 @@ jobs:
             fi
 
             # Pull the latest image from Docker Hub
-            IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/nestjs-backend:latest"
+            IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/colina_turbo:backend"
             echo "Pulling latest image from Docker Hub..."
             if sudo docker pull $IMAGE_NAME; then
               echo "Image pulled successfully."
