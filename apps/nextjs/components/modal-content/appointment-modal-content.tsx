@@ -18,7 +18,7 @@ interface Modalprops {
   appointmentId?: string;
   label: string;
   isOpen: boolean;
-  isModalOpen: (isOpen: boolean) => void; 
+  isModalOpen: (isOpen: boolean) => void;
   onSuccess: () => void;
   setIsViewAppointment?: any;
   isEdit?: boolean;
@@ -291,7 +291,9 @@ export const AppointmentModalContent = ({
         <div className="flex w-full flex-col justify-start bg-[#ffffff]">
           <div className="flex items-center justify-between">
             <h2 className="p-title ml-10 mt-7 text-left text-[#071437]">
-              {isView ? "View Appointment Details" : "Make an Appointment"}
+              {isView
+                ? `Appointment ${label === "Order" ? label : "Details"}`
+                : "Make an Appointment"}
             </h2>
             <X
               onClick={() => {

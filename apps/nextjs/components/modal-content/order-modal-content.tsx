@@ -36,6 +36,8 @@ const OrderModalContent = ({
               {tab === "PrescriptionUpdate"
                 ? "Update Prescription":
                 tab === "Dietary"
+                ? "Dietary Order":
+                tab === "Appointment"
                 ? "Dietary Order"
                 : `${tab === "Prescription" ? "View" : "Add"} ${
                     category === "Prescription"

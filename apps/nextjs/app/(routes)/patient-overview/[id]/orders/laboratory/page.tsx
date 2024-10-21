@@ -395,7 +395,7 @@ const Laboratory = () => {
               isView={isViewAppointment}
               appointmentData={appointmentData}
               appointmentId={appointmentId}
-              label="sample label"
+              label="Order"
             />
           }
           isModalOpen={isModalOpen}
