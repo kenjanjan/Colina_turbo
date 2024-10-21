@@ -109,5 +109,5 @@ jobs:
 
             # Run the new container
             echo "Running new container..."
-            sudo docker run -d -p 80:3000 --name $CONTAINER_NAME $IMAGE_NAME
+            sudo docker run -d -p 3001:3001 --name $CONTAINER_NAME $IMAGE_NAME
           EOF
