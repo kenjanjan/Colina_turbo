@@ -19,18 +19,15 @@ jobs:
       - name: Log in to DockerHub
         run: echo "${{ secrets.DOCKERHUB_ACCESS_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
+      # Prune unused Docker resources
+      - name: Prune Docker system
+        run: docker system prune -f
+
       # Build and Push Docker image for the backend (NestJS) without cache
       - name: Build and Push backend Docker image
         run: |
           docker build --no-cache -t ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-backend ./apps/nestjs
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-backend
-
-      # Upload backend Docker image as an artifact (optional)
-      # - name: Upload backend image
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: nestjs-backend-image
-      #     path: ./apps/nestjs
 
   deploy-backend:
     runs-on: ubuntu-latest
@@ -99,18 +96,15 @@ jobs:
       - name: Log in to DockerHub
         run: echo "${{ secrets.DOCKERHUB_ACCESS_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
+      # Prune unused Docker resources
+      - name: Prune Docker system
+        run: docker system prune -f
+
       # Build and Push Docker image for the frontend (Next.js) without cache
       - name: Build and Push frontend Docker image
         run: |
           docker build --no-cache -t ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-frontend ./apps/nextjs
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-frontend
-
-      # Upload frontend Docker image as an artifact (optional)
-      # - name: Upload frontend image
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: nextjs-frontend-image
-      #     path: ./apps/nextjs
 
   deploy-frontend:
     runs-on: ubuntu-latest
