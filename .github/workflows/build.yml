@@ -23,7 +23,7 @@ jobs:
       # Build and Push Docker image for the backend (NestJS)
       - name: Build and Push backend Docker image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-backend ./apps/nestjs
+          docker build --no-cache  -t ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-backend ./apps/nestjs
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-backend
       
       # Upload backend Docker image as an artifact (optional)
@@ -85,7 +85,7 @@ jobs:
       # Build and Push Docker image for the frontend (Next.js)
       - name: Build and Push frontend Docker image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-frontend ./apps/nextjs
+          docker build --no-cache  -t ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-frontend ./apps/nextjs
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-frontend
 
       # Upload frontend Docker image as an artifact (optional)
