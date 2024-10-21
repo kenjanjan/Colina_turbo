@@ -326,7 +326,7 @@ const PatientCard = ({
                                             >
                                           | Iterable<React.ReactNode>
                                           | React.ReactPortal
-                                          | React.PromiseLikeOfReactNode
+                                          | React.ReactNode
                                           | null
                                           | undefined;
                                         medicationType:
@@ -340,7 +340,7 @@ const PatientCard = ({
                                             >
                                           | Iterable<React.ReactNode>
                                           | React.ReactPortal
-                                          | React.PromiseLikeOfReactNode
+                                          | React.ReactNode
                                           | null
                                           | undefined;
                                       },

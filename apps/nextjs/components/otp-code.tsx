@@ -241,7 +241,9 @@ const OTPCode = ({
               id={`otpInput${index + 1}`}
               maxLength={1}
               value={digit}
-              ref={(ref: HTMLInputElement) => (inputs.current[index] = ref)}
+              ref={(ref: HTMLInputElement | null) => {
+                if (ref) inputs.current[index] = ref;
+              }}
               onChange={(e) => handleOTPChange(e, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
               onClick={(e) => handleClick(e, index)}

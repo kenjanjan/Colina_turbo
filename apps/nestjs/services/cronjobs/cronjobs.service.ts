@@ -385,7 +385,7 @@ export class CronjobsService {
             newMedicationLogs.hasDuration =
               prescription.startDate != '' ||
               undefined ||
-              (null && prescription.prescriptionType === 'PRN')
+               prescription.prescriptionType === 'PRN'
                 ? 'true'
                 : prescription.prescriptionType === 'ASCH'
                   ? 'true'

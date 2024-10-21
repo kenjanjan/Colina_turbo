@@ -341,7 +341,7 @@ const TimeGraph = ({
                                                     >
                                                   | Iterable<React.ReactNode>
                                                   | React.ReactPortal
-                                                  | React.PromiseLikeOfReactNode
+                                                  | React.ReactNode
                                                   | null
                                                   | undefined;
                                                 medicationType:
@@ -355,7 +355,7 @@ const TimeGraph = ({
                                                     >
                                                   | Iterable<React.ReactNode>
                                                   | React.ReactPortal
-                                                  | React.PromiseLikeOfReactNode
+                                                  | React.ReactNode
                                                   | null
                                                   | undefined;
                                               },
@@ -450,7 +450,7 @@ const TimeGraph = ({
                                                 >
                                               | Iterable<React.ReactNode>
                                               | React.ReactPortal
-                                              | React.PromiseLikeOfReactNode
+                                              | React.ReactNode
                                               | null
                                               | undefined;
                                             medicationType:
@@ -464,7 +464,7 @@ const TimeGraph = ({
                                                 >
                                               | Iterable<React.ReactNode>
                                               | React.ReactPortal
-                                              | React.PromiseLikeOfReactNode
+                                              | React.ReactNode
                                               | null
                                               | undefined;
                                           },
