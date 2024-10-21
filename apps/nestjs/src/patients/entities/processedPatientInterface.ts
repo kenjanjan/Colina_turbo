@@ -7,6 +7,8 @@ export interface ProcessedPatient {
     lastName: string;
     age: number;
     gender: string;
+    diagnosis: string;
+
     codeStatus: string;
     allergies: string; // Changed to string type
   }
@@ -24,6 +26,10 @@ export interface ProcessedPatient {
     zip: string;
     country: string;
     phoneNo: string;
+    
+    room: string;
+    bed: string;
+    diagnosis: string;
     admissionDate?: Date; // Make admissionDate optional since it's nullable
     codeStatus: string;
     allergies: string; // Changed to string type for joined allergies

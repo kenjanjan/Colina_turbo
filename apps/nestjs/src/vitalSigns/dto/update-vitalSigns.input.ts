@@ -15,6 +15,13 @@ export class UpdateVitalSignInput extends PartialType(CreateVitalSignInput) {
   @IsNotEmpty()
   @Field()
   date: string;
+  @Field()
+  height: string;
+  @Field()
+  oxygen: string;
+
+  @Field()
+  weight: string;
 
   @IsNotEmpty()
   @Field()

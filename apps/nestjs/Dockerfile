@@ -1,26 +1,23 @@
-# Use an official Node.js runtime as the base image
-FROM node:18
+# Use the official Node.js image as a base image
+FROM node:18-alpine
 
-# Set working directory
-WORKDIR /app
+# Set the working directory inside the container
+WORKDIR /src
 
-# Copy package.json and package-lock.json to the container
+# Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy the rest of the application code to the container
+# Copy the rest of the application code to the working directory
 COPY . .
 
-# Rebuild bcrypt to fix the binary issue
-RUN npm rebuild bcrypt --build-from-source
-
-# Run the build step to compile TypeScript (if necessary)
+# Build the Next.js application
 RUN npm run build
 
-# Expose the port that your NestJS app listens on
+# Expose the port Next.js is running on
 EXPOSE 3000
 
-# Start the NestJS app
-CMD ["npm", "run", "start"]
+# Set the command to run the Next.js application
+CMD ["npm", "start"]

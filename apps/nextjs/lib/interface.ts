@@ -175,4 +175,5 @@ export interface ModalProps {
   onSuccess?: () => void;
   onFailed?: () => void;
   setErrorMessage?: any;
+  setIsUpdated?: (isUpdated: boolean) => void; 
 }

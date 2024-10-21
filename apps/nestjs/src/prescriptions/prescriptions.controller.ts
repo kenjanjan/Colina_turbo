@@ -70,6 +70,7 @@ export class PrescriptionsController {
     @Body()
     body: {
       term: string;
+      type:string;
       page: number;
       sortBy: string;
       sortOrder: 'ASC' | 'DESC';
@@ -78,10 +79,11 @@ export class PrescriptionsController {
 
     },
   ) {
-    const { term = '', page, sortBy, sortOrder, perPage,filterStatus } = body;
+    const { term = '', type="", page, sortBy, sortOrder, perPage,filterStatus } = body;
     return this.prescriptionsService.getAllPrescriptionsByPatient(
       patientId,
       term,
+      type, 
       page,
       sortBy,
       sortOrder,

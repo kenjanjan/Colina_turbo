@@ -55,6 +55,15 @@ export class CreatePatientsInput {
   phoneNo: string;
 
   @Field()
+  diagnosis: string;
+
+  @Field()
+  bed: string;
+
+  @Field()
+  room: string;
+
+  @Field()
   codeStatus: string;
 
   dischargeDate?: Date;

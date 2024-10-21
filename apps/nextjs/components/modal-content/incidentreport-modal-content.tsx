@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { ToastAction } from "../ui/toast";
 import { useToast } from "../ui/use-toast";
+import { cn } from "@/lib/utils";
 
 interface Modalprops {
   isModalOpen: (isOpen: boolean) => void;
@@ -14,6 +15,8 @@ interface Modalprops {
   isView: boolean;
   onSuccess: () => void;
   PatientNotesData: any;
+  isNotesModalOpen?: (isOpen: boolean) => void;
+  isIRModalOpen?: (isOpen: boolean) => void;
 }
 
 export const IncidentreportModalContent = ({
@@ -24,6 +27,8 @@ export const IncidentreportModalContent = ({
   isView,
   isModalOpen,
   PatientNotesData,
+  isIRModalOpen,
+  isNotesModalOpen,
   onSuccess,
 }: Modalprops) => {
   const params = useParams<{
@@ -118,6 +123,18 @@ export const IncidentreportModalContent = ({
           </div>
           <p className="pb-10 pl-10 pt-2 text-sm text-gray-600">
             Submit your Report.
+          </p>
+          <p
+            className={cn(
+              "z-10 w-full cursor-pointer px-10 text-end text-[15px] text-[#007C85] -mt-10",
+              { hidden: !name },
+            )}
+            onClick={() => {
+              isIRModalOpen!(false);
+              isNotesModalOpen!(true)
+            }}
+          >
+            Go to Pogress Notes
           </p>
         </div>
         <div className="mb-9 pt-4">

@@ -44,12 +44,12 @@ export class PrescriptionsService {
     private readonly appointmentsService: AppointmentsService,
 
     private idService: IdService, // Inject the IdService
-  ) { }
+  ) {}
 
   async createPrescriptions(
     patientUuid: string,
     prescriptionData: CreatePrescriptionsInput,
-    appointmentUuid: string
+    appointmentUuid: string,
   ): Promise<Prescriptions> {
     // Step 1: Retrieve the patient ID using the provided patient UUID
     const { id: patientId } = await this.patientsRepository.findOne({
@@ -70,10 +70,18 @@ export class PrescriptionsService {
     }
 
     // Step 3: Find the appointment ID using the provided appointment UUID
-    const appointmentId = await this.appointmentsService.findAppointmentIdByUuid(appointmentUuid);
+    const appointmentId =
+      await this.appointmentsService.findAppointmentIdByUuid(appointmentUuid);
 
     // Step 4: Create a new order linked to the appointment
-    const orderDto = { uuid: this.idService.generateRandomUUID('ORD-'), appointmentId, orderDate: new Date().toISOString(), patientId: patientId, orderType: 'prescription', status: 'active' };
+    const orderDto = {
+      uuid: this.idService.generateRandomUUID('ORD-'),
+      appointmentId,
+      orderDate: new Date().toISOString(),
+      patientId: patientId,
+      orderType: 'prescription',
+      status: 'active',
+    };
     const savedOrder = await this.ordersService.create(orderDto); // Use the OrdersService
 
     // Step 5: Create and save the new prescription
@@ -82,14 +90,15 @@ export class PrescriptionsService {
     newPrescriptions.uuid = prescriptionUuid;
     newPrescriptions.patientId = patientId;
     Object.assign(newPrescriptions, prescriptionData);
-    const savedPrescription = await this.prescriptionsRepository.save(newPrescriptions);
+    const savedPrescription =
+      await this.prescriptionsRepository.save(newPrescriptions);
 
     // Step 6: Create the order-prescription relationship
     const orderPrescriptionDto = {
       uuid: this.idService.generateRandomUUID('ORD-PRC-'),
       prescriptionId: savedPrescription.id,
       orderId: savedOrder.id,
-      status: 'active'
+      status: 'active',
     };
     await this.ordersPrescriptionsService.create(orderPrescriptionDto); // Use the OrdersPrescriptionsService
 
@@ -178,8 +187,8 @@ export class PrescriptionsService {
             newMedicationLogs.medicationLogsDate = formattedDate;
             newMedicationLogs.hasDuration =
               prescription.startDate != '' ||
-                undefined ||
-                (null && prescription.prescriptionType === 'PRN')
+              undefined ||
+              prescription.prescriptionType === 'PRN'
                 ? 'true'
                 : prescription.prescriptionType === 'ASCH'
                   ? 'true'
@@ -275,12 +284,13 @@ export class PrescriptionsService {
   async getAllPrescriptionsByPatient(
     patientUuid: string,
     term: string,
+    type: string,
     page: number = 1,
     sortBy: string = 'status',
     sortOrder: 'ASC' | 'DESC' = 'DESC',
+
     perPage: number = 4,
     filterStatus?: string[] | undefined,
-
   ): Promise<{
     data: Prescriptions[];
     totalPages: number;
@@ -307,12 +317,18 @@ export class PrescriptionsService {
         'prescriptions.frequency',
         'prescriptions.prescriptionType',
         'prescriptions.interval',
+        'prescriptions.startDate',
+        'prescriptions.endDate',
+        'prescriptions.dateIssued',
+        'prescriptions.expiryDate',
         'patient.uuid',
         'prescriptions.createdAt',
       ])
 
       .where('patient.uuid = :uuid', { uuid: patientUuid })
-
+      .andWhere('prescriptions.prescriptionType = :prescriptionType', {
+        prescriptionType: type,
+      })
       .orderBy(`${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);
@@ -419,13 +435,16 @@ export class PrescriptionsService {
     const prescriptions = await this.prescriptionsRepository.findOne({
       where: { uuid: id },
     });
-    console.log(id, "prescription id");
+    console.log(id, 'prescription id');
     if (!prescriptions) {
       throw new NotFoundException(`Prescriptions ID-${id} not found.`);
     }
 
     // Step 2: Update the prescription
-    if (updateData.frequency && updateData.frequency !== prescriptions.frequency) {
+    if (
+      updateData.frequency &&
+      updateData.frequency !== prescriptions.frequency
+    ) {
       prescriptions.frequency = updateData.frequency;
       await this.prescriptionsRepository.save(prescriptions);
       await this.createTimeGraphPrescription(id);
@@ -435,11 +454,16 @@ export class PrescriptionsService {
     }
 
     // Step 3: Find the linked orders_prescriptions entry
-    const ordersPrescriptions = await this.ordersPrescriptionsService.findByPrescriptionId(prescriptions.id);
+    const ordersPrescriptions =
+      await this.ordersPrescriptionsService.findByPrescriptionId(
+        prescriptions.id,
+      );
     if (!ordersPrescriptions) {
-      throw new NotFoundException(`Orders-Prescriptions relation not found for Prescription ID-${prescriptions.id}.`);
+      throw new NotFoundException(
+        `Orders-Prescriptions relation not found for Prescription ID-${prescriptions.id}.`,
+      );
     }
-    console.log(prescriptions.id, "prescriptions.id id");
+    console.log(prescriptions.id, 'prescriptions.id id');
 
     // Step 5: Update statuses
     if (updateData.status) {
@@ -447,21 +471,26 @@ export class PrescriptionsService {
       ordersPrescriptions.status = updateData.status;
       prescriptions.status = updateData.status;
     }
-    console.log("Updating statuses...");
+    console.log('Updating statuses...');
     // Enhanced error handling
     try {
       await this.prescriptionsRepository.save(prescriptions);
-      await this.ordersPrescriptionsService.updateStatus(prescriptions.id, ordersPrescriptions.status);
+      await this.ordersPrescriptionsService.updateStatus(
+        prescriptions.id,
+        ordersPrescriptions.status,
+      );
       await this.prescriptionsRepository.save(prescriptions);
 
-      console.log("Updated Prescription:", prescriptions);
+      console.log('Updated Prescription:', prescriptions);
 
-      await this.ordersPrescriptionsService.updateStatus(prescriptions.id, ordersPrescriptions.status);
-      console.log("Updated OrdersPrescriptions:", ordersPrescriptions);
-
+      await this.ordersPrescriptionsService.updateStatus(
+        prescriptions.id,
+        ordersPrescriptions.status,
+      );
+      console.log('Updated OrdersPrescriptions:', ordersPrescriptions);
     } catch (error) {
-      console.error("Error updating statuses:", error);
-      throw new Error("Failed to update statuses due to an error.");
+      console.error('Error updating statuses:', error);
+      throw new Error('Failed to update statuses due to an error.');
     }
 
     // Step 6: Prepare the final result
@@ -625,7 +654,11 @@ export class PrescriptionsService {
       );
     }
 
-    const [patientPrescriptions, totalPatientPrescriptions, medicationLogsCount] = await Promise.all([
+    const [
+      patientPrescriptions,
+      totalPatientPrescriptions,
+      medicationLogsCount,
+    ] = await Promise.all([
       patientTimeGraphQueryBuilder.getMany(),
       totalPatientPrescriptionsQueryBuilder.getCount(),
       medicationLogsCountQueryBuilder.getCount(),
@@ -712,7 +745,6 @@ export class PrescriptionsService {
       prescriptionOrders: medicationLogsCount,
     };
   }
-
 
   //Prescription Files
   //prescription FILES

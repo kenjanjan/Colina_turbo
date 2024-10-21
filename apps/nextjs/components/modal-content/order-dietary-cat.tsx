@@ -48,7 +48,7 @@ const DietaryOrderCategory = ({
   const [isReferenceOpen, setIsReferenceOpen] = useState(false);
   const [orderList, setOrderlist] = useState<Order[]>([]);
   const [formData, setFormData] = useState({
-    dietary: data?.dietaryuuid || "",
+    dietary: data?.dietary || "",
     notes: data?.notes || "",
     status: data?.status || "",
     orderUuid: data?.orderuuid || "",
@@ -218,8 +218,8 @@ console.log(formData,"formData")
               className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
             >
               <option value="">Select Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
             </select>
             <Image
               className="pointer-events-none absolute right-0 top-0 mr-3 mt-3"

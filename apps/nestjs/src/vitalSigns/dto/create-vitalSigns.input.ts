@@ -27,6 +27,13 @@ export class CreateVitalSignInput {
 
   @Field()
   respiratoryRate: string;
+  
+  @Field()
+  oxygen: string;
+  @Field()
+  height: string;
+  @Field()
+  weight: string;
 
   @IsNotEmpty()
   @Field(() => Int)

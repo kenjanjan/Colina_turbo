@@ -24,12 +24,15 @@ import ChartLoader from "./loaders/ChartLoader";
 import LoadingGif from "./loaders/LoadingGif";
 import { NursenotesModalContent } from "./modal-content/nursenotes-modal-content";
 import { IncidentreportModalContent } from "./modal-content/incidentreport-modal-content";
+import ChartOrderModal from "./modal-content/chart-order-modal";
 
 const Chart = () => {
   const router = useRouter();
   const [id, setId] = useState("");
   const searchParams = useSearchParams();
-  const [patientId, setPatientId] = useState<string | null>(searchParams.get("id"));
+  const [patientId, setPatientId] = useState<string | null>(
+    searchParams.get("id"),
+  );
   const { toast } = useToast();
   const [patientList, setPatientList] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -55,8 +58,9 @@ const Chart = () => {
   const [prescriptionOrders, setPrescriptionOrders] = useState();
   const [isNoteOpen, setIsNoteOpen] = useState(false);
   const [isIROpen, setIsIROpen] = useState(false);
+  const [isChartOrderOpen, setIsChartOrderOpen] = useState(false);
   console.log(patientName, "patientName");
-console.log(patientId, "patientId");
+  console.log(patientId, "patientId");
   const patientWithMedicationLogsToday = patientList?.filter((patient) => {
     // Assuming medicationlogs is an array and you want to check if any of the logs were created today
     return patient.medicationlogs.some((log: any) => {
@@ -101,6 +105,15 @@ console.log(patientId, "patientId");
     if (isIrOpen) {
       document.body.style.overflow = "hidden";
     } else if (!isIrOpen) {
+      document.body.style.overflow = "visible";
+    }
+  };
+
+  const isChartOrderModalOpen = (isChartOrderOpen: boolean) => {
+    setIsChartOrderOpen(isChartOrderOpen);
+    if (isChartOrderOpen) {
+      document.body.style.overflow = "hidden";
+    } else if (!isChartOrderOpen) {
       document.body.style.overflow = "visible";
     }
   };
@@ -255,6 +268,7 @@ console.log(patientId, "patientId");
                       isNotesModalOpen={isNotesModalOpen}
                       setPatientName={setPatientName}
                       prescriptionOrders={prescriptionOrders}
+                      setIsChartOrderOpen={setIsChartOrderOpen}
                     />
                   </div>
                 </div>
@@ -363,6 +377,8 @@ console.log(patientId, "patientId");
             content={
               <IncidentreportModalContent
                 isModalOpen={isIRModalOpen}
+                isNotesModalOpen={isNotesModalOpen}
+                isIRModalOpen={isIRModalOpen}
                 uuid={patientUuid}
                 name={patientName}
                 isOpen={isOpen}
@@ -373,6 +389,18 @@ console.log(patientId, "patientId");
               />
             }
             isModalOpen={isIRModalOpen}
+          />
+        )}
+        {isChartOrderOpen && (
+          <Modal
+            content={
+              <ChartOrderModal
+                setIsChartOrderOpen={setIsChartOrderOpen}
+                patientUuid={patientUuid}
+                patientName={patientName}
+              />
+            }
+            isModalOpen={isChartOrderModalOpen}
           />
         )}
         {isSuccessOpen && (

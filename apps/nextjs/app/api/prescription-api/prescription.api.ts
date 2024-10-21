@@ -7,6 +7,7 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export async function fetchPrescriptionByPatient(
   patientUuid: string,
   term: string,
+  type: string,
   currentPage: number,
   sortBy: string,
   sortOrder: "ASC" | "DESC",
@@ -18,6 +19,7 @@ export async function fetchPrescriptionByPatient(
   const requestData = {
     patientUuid: patientUuid.toUpperCase(),
     term: term,
+    type: type,
     page: currentPage,
     sortBy: sortBy,
     sortOrder: sortOrder,

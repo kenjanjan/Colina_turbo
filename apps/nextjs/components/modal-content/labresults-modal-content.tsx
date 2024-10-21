@@ -24,6 +24,7 @@ interface Modalprops {
   isModalOpen: (isOpen: boolean) => void;
   onSuccess: () => void;
   appointmentData: any;
+  setIsViewLabResult?: any;
 }
 interface LabFile {
   file: any; // Assuming file property exists for the key
@@ -42,6 +43,7 @@ export const LabresultsModalContent = ({
   isModalOpen,
   onSuccess,
   appointmentData,
+  setIsViewLabResult,
 }: Modalprops) => {
   const params = useParams<{
     id: any;
@@ -49,7 +51,7 @@ export const LabresultsModalContent = ({
     item: string;
   }>();
 
-  const patientId = params.id.toUpperCase();
+  const patientId = params?.id?.toUpperCase();
   const [labFiles, setLabFiles] = useState<any[]>([]); //
 
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -69,7 +71,7 @@ export const LabresultsModalContent = ({
     orderUuid: orderUuid ? orderUuid : "",
   });
   let headingText = "";
-
+  console.log(formData, "formData");
   if (isEdit) {
     headingText = "Update Laboratory Result";
   } else if (label === "ViewLabResult") {
@@ -331,6 +333,8 @@ export const LabresultsModalContent = ({
       setIsHovering(false);
     };
 
+    console.log(appointmentData, "appointmentData");
+
     return (
       <div
         className="relative"
@@ -476,7 +480,8 @@ export const LabresultsModalContent = ({
                 <h2 className="p-title mt-7 pl-10 text-left text-[#071437]"></h2>
                 <X
                   onClick={() => {
-                    isSubmitted ? null : isModalOpen(false);
+                    isSubmitted ? null : isModalOpen(false),
+                      setIsViewLabResult(false);
                   }}
                   className={` ${isSubmitted && "cursor-not-allowed"} mr-9 mt-6 flex h-6 w-6 cursor-pointer items-center text-black`}
                 />
@@ -513,7 +518,7 @@ export const LabresultsModalContent = ({
                   {isEdit ? "Update" : "Submit"} your log details.
                 </p>
               </div>
-              {!label && (
+              {label === "labResults" && (
                 <div className="ml-10 mt-5 flex gap-1.5">
                   <input
                     id="checkbox"
@@ -581,9 +586,9 @@ export const LabresultsModalContent = ({
                       <div className="mt-2.5">
                         <input
                           value={
-                            formData.hemoglobinA1c || label === "ViewLabResult"
+                            label === "ViewLabResult"
                               ? appointmentData.labresulthemoglobina1c
-                              : ""
+                              : formData.hemoglobinA1c
                           }
                           readOnly={label === "ViewLabResult"}
                           type="text"
@@ -607,10 +612,9 @@ export const LabresultsModalContent = ({
                           type="text"
                           onChange={handleChange}
                           value={
-                            formData.fastingBloodGlucose ||
                             label === "ViewLabResult"
                               ? appointmentData.labresultfastingbloodglucose
-                              : ""
+                              : formData.fastingBloodGlucose
                           }
                           readOnly={label === "ViewLabResult"}
                           required
@@ -630,10 +634,9 @@ export const LabresultsModalContent = ({
                       <div className="mt-2.5">
                         <input
                           value={
-                            formData.totalCholesterol ||
                             label === "ViewLabResult"
                               ? appointmentData.labresulttotalcholesterol
-                              : ""
+                              : formData.totalCholesterol
                           }
                           readOnly={label === "ViewLabResult"}
                           type="text"
@@ -656,9 +659,9 @@ export const LabresultsModalContent = ({
                         <input
                           type="text"
                           value={
-                            formData.ldlCholesterol || label === "ViewLabResult"
+                            label === "ViewLabResult"
                               ? appointmentData.labresultldlcholesterol
-                              : ""
+                              : formData.ldlCholesterol
                           }
                           readOnly={label === "ViewLabResult"}
                           required
@@ -679,9 +682,9 @@ export const LabresultsModalContent = ({
                       <div className="mt-2.5">
                         <input
                           value={
-                            formData.hdlCholesterol || label === "ViewLabResult"
+                            label === "ViewLabResult"
                               ? appointmentData.labresulthdlcholesterol
-                              : ""
+                              : formData.hdlCholesterol
                           }
                           readOnly={label === "ViewLabResult"}
                           type="text"
@@ -703,9 +706,9 @@ export const LabresultsModalContent = ({
                       <div className="mt-2.5">
                         <input
                           value={
-                            formData.triglycerides || label === "ViewLabResult"
+                            label === "ViewLabResult"
                               ? appointmentData.labresulttriglycerides
-                              : ""
+                              : formData.triglycerides
                           }
                           readOnly={label === "ViewLabResult"}
                           type="text"
@@ -731,9 +734,9 @@ export const LabresultsModalContent = ({
                           type="date"
                           name="date"
                           value={
-                            formData.date || label === "ViewLabResult"
+                            label === "ViewLabResult"
                               ? appointmentData.labresultdate
-                              : ""
+                              : formData.date
                           }
                           readOnly={label === "ViewLabResult"}
                           onChange={handleChange}
@@ -842,27 +845,28 @@ export const LabresultsModalContent = ({
                     )} */}
                   </div>
                 </div>
-                {label === "LabResultTab" && (
-                  <div className="pt-10">
-                    <div className="mr-10 flex justify-end">
-                      <button
-                        onClick={() => isModalOpen(false)}
-                        disabled={isSubmitted}
-                        type="button"
-                        className={` ${isSubmitted && "cursor-not-allowed"} mr-4 h-[45px] w-[150px] rounded-sm bg-[#F3F3F3] font-medium text-black hover:bg-[#D9D9D9]`}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        disabled={isSubmitted}
-                        type="submit"
-                        className={` ${isSubmitted && "cursor-not-allowed"} h-[45px] w-[150px] rounded-sm bg-[#007C85] px-3 py-2 font-medium text-[#ffff] hover:bg-[#03595B]`}
-                      >
-                        Submit
-                      </button>
+                {label === "LabResultTab" ||
+                  (label === "labResults" && (
+                    <div className="pt-10">
+                      <div className="mr-10 flex justify-end">
+                        <button
+                          onClick={() => isModalOpen(false)}
+                          disabled={isSubmitted}
+                          type="button"
+                          className={` ${isSubmitted && "cursor-not-allowed"} mr-4 h-[45px] w-[150px] rounded-sm bg-[#F3F3F3] font-medium text-black hover:bg-[#D9D9D9]`}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          disabled={isSubmitted}
+                          type="submit"
+                          className={` ${isSubmitted && "cursor-not-allowed"} h-[45px] w-[150px] rounded-sm bg-[#007C85] px-3 py-2 font-medium text-[#ffff] hover:bg-[#03595B]`}
+                        >
+                          Submit
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  ))}
               </div>
             </form>
           </>

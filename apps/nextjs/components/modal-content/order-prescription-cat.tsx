@@ -5,6 +5,7 @@ import { cn, formatCreatedAtDate } from "@/lib/utils";
 import {
   addPrescriptionFile,
   createPrescriptionOfPatient,
+  updatePrescriptionOfPatient,
 } from "@/app/api/prescription-api/prescription.api";
 import { useParams, useRouter } from "next/navigation";
 import { ToastAction } from "../ui/toast";
@@ -15,7 +16,7 @@ interface Modalprops {
   label?: string;
   isOpen?: boolean;
   setErrorMessage?: any;
-  setIsUpdated: any;
+  setIsUpdated?: (isUpdated: boolean) => void;
   isModalOpen: (isOpen: boolean) => void;
   onSuccess: () => void;
   onFailed: () => void;
@@ -33,6 +34,7 @@ const PrescriptionOrderCategory = ({
   onSuccess,
   onFailed,
   setErrorMessage,
+  setIsUpdated,
 }: {
   data?: any;
   tab?: string;
@@ -45,6 +47,7 @@ const PrescriptionOrderCategory = ({
   onSuccess: () => void;
   onFailed: () => void;
   setErrorMessage?: any;
+  setIsUpdated?: (isUpdated: boolean) => void;
 }) => {
   const params = useParams<{
     id: any;
@@ -66,14 +69,15 @@ const PrescriptionOrderCategory = ({
   const [formData, setFormData] = useState({
     patientUuid: patientId,
     prescriptionType: data?.p_prescriptionType || "",
-    name: data?.p_name || "",
-    frequency: data?.p_frequency || "",
-    interval: data?.p_interval || "",
-    dosage: data?.p_dosage || "",
-    dateIssued: data?.p_dateIssued || "",
-    startDate: data?.p_startdate || "",
-    endDate: data?.p_enddate || "",
-    status: data?.p_status || "",
+    name: data?.p_name || data?.prescriptions_name || "",
+    frequency: data?.p_frequency || data?.prescriptions_frequency || "",
+    interval: data?.p_interval || data?.prescriptions_interval || "",
+    dosage: data?.p_dosage || data?.prescriptions_dosage || "",
+    dateIssued: data?.p_dateissued || data?.prescriptions_dateIssued || "",
+    expiryDate: data?.p_expirydate || data?.prescriptions_expiryDate || "",
+    startDate: data?.p_startdate || data?.prescriptions_startdate || "",
+    endDate: data?.p_enddate || data?.prescriptions_enddate || "",
+    status: data?.p_status || data?.prescriptions_status || "",
   });
 
   useEffect(() => {
@@ -184,52 +188,91 @@ const PrescriptionOrderCategory = ({
     setIsSubmitted(true);
 
     try {
-      const prescription = await createPrescriptionOfPatient(
-        patientId,
-        formData,
-        appointmentId,
-        router,
-      );
-      console.log("Prescription added successfully:", prescription);
-      // Iterate through each selected file
-      if (selectedFiles.length > 0) {
-        for (let i = 0; i < selectedFiles.length; i++) {
-          const prescriptionFileFormData = new FormData();
-          prescriptionFileFormData.append(
-            "prescriptionfile",
-            selectedFiles[i],
-            fileNames[i],
-          );
+      if (tab === "PrescriptionUpdate") {
+        await updatePrescriptionOfPatient(
+          data.prescriptions_uuid,
+          formData,
+          router,
+        );
 
-          // Add prescription file
-          const addPrescriptionFiles = await addPrescriptionFile(
-            prescription.uuid,
-            prescriptionFileFormData,
-          );
-          console.log(
-            `Prescription FILE ${fileNames[i]} added successfully:`,
-            addPrescriptionFiles,
-          );
+        // Iterate through each selected file
+        if (selectedFiles && selectedFiles.length > 0) {
+          // Iterate through each selected file
+          for (let i = 0; i < selectedFiles.length; i++) {
+            const prescriptionFileFormData = new FormData();
+            prescriptionFileFormData.append(
+              "prescriptionfile",
+              selectedFiles[i],
+              fileNames[i],
+            );
+
+            // Add prescription file
+            const addPrescriptionFiles = await addPrescriptionFile(
+              patientId,
+              prescriptionFileFormData,
+            );
+
+            console.log(
+              `Prescription FILE ${fileNames[i]} added successfully:`,
+              addPrescriptionFiles,
+            );
+          }
+        } else {
+          console.warn("No files selected to upload");
         }
+        setIsUpdated?.(true);
+        setIsSubmitted(false);
+        onSuccess();
+        isModalOpen(false);
       } else {
-        console.warn("No files selected to upload");
+        const prescription = await createPrescriptionOfPatient(
+          patientId,
+          formData,
+          appointmentId,
+          router,
+        );
+        console.log("Prescription added successfully:", prescription);
+        // Iterate through each selected file
+        if (selectedFiles.length > 0) {
+          for (let i = 0; i < selectedFiles.length; i++) {
+            const prescriptionFileFormData = new FormData();
+            prescriptionFileFormData.append(
+              "prescriptionfile",
+              selectedFiles[i],
+              fileNames[i],
+            );
+
+            // Add prescription file
+            const addPrescriptionFiles = await addPrescriptionFile(
+              prescription.uuid,
+              prescriptionFileFormData,
+            );
+            console.log(
+              `Prescription FILE ${fileNames[i]} added successfully:`,
+              addPrescriptionFiles,
+            );
+          }
+        } else {
+          console.warn("No files selected to upload");
+        }
+        // Reset form data
+        setFormData({
+          patientUuid: patientId,
+          prescriptionType: "",
+          name: "",
+          frequency: "",
+          interval: "",
+          dosage: "",
+          dateIssued: "",
+          expiryDate: "",
+          startDate: "",
+          endDate: "",
+          status: "",
+        });
+        setSelectedFileNames([]); // Reset selected files
+        setIsOrderModalOpen(false);
+        onSuccess();
       }
-      // Reset form data
-      setFormData({
-        patientUuid: patientId,
-        prescriptionType: "",
-        name: "",
-        frequency: "",
-        interval: "",
-        dosage: "",
-        dateIssued: "",
-        startDate: "",
-        endDate: "",
-        status: "",
-      });
-      setSelectedFileNames([]); // Reset selected files
-      setIsOrderModalOpen(false);
-      onSuccess();
     } catch (error: any) {
       console.error("Error adding Prescription:", error);
       setError("Failed to add Prescription");
@@ -268,27 +311,26 @@ const PrescriptionOrderCategory = ({
     }));
   };
 
-
   return (
     <form onSubmit={handleSubmit}>
-      {!isPrn && (
+      {!isPrn && !tab && (
         <p
           className="sub-title mb-2 ml-auto w-fit cursor-pointer text-end"
-          // onClick={() => {
-          //   setIsPrn(true);
-          // }}
+          onClick={() => {
+            setIsPrn(true);
+          }}
         >
-          {/* Go to Prescription PRN */}
+          Go to Prescription PRN
         </p>
       )}
-      {isPrn && (
+      {isPrn && !tab && (
         <p
           className="sub-title mb-2 ml-auto w-fit cursor-pointer"
-          // onClick={() => {
-          //   setIsPrn(false);
-          // }}
+          onClick={() => {
+            setIsPrn(false);
+          }}
         >
-          {/* Go to Prescription Scheduled */}
+          Go to Prescription Scheduled
         </p>
       )}
       <div className="grid grid-cols-2 gap-x-5 gap-y-2">
@@ -301,7 +343,13 @@ const PrescriptionOrderCategory = ({
               type="text"
               required
               readOnly={tab ? tab.length > 0 : false}
-              className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+              className={cn(
+                "block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6",
+                {
+                  "cursor-not-allowed":
+                    tab === "PrescriptionUpdate" || tab === "Prescription",
+                },
+              )}
               placeholder="input medicine name"
               name="name"
               value={formData.name}
@@ -315,7 +363,13 @@ const PrescriptionOrderCategory = ({
             <select
               required
               disabled={tab ? tab.length > 0 : false}
-              className="block h-12 w-full cursor-pointer rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+              className={cn(
+                "block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6",
+                {
+                  "cursor-not-allowed":
+                    tab === "PrescriptionUpdate" || tab === "Prescription",
+                },
+              )}
               name="frequency"
               value={data.p_frequency || formData.frequency}
               onChange={handleDropDownChange}
@@ -341,7 +395,13 @@ const PrescriptionOrderCategory = ({
               type="text"
               required
               readOnly={tab ? tab.length > 0 : false}
-              className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+              className={cn(
+                "block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6",
+                {
+                  "cursor-not-allowed":
+                    tab === "PrescriptionUpdate" || tab === "Prescription",
+                },
+              )}
               placeholder="input interval"
               name="interval"
               value={formData.interval}
@@ -356,7 +416,13 @@ const PrescriptionOrderCategory = ({
               type="text"
               required
               readOnly={tab ? tab.length > 0 : false}
-              className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+              className={cn(
+                "block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6",
+                {
+                  "cursor-not-allowed":
+                    tab === "PrescriptionUpdate" || tab === "Prescription",
+                },
+              )}
               placeholder="input dosage"
               name="dosage"
               value={formData.dosage}
@@ -364,7 +430,7 @@ const PrescriptionOrderCategory = ({
             />
           </div>
         </div>
-        {isPrn && (
+        {!isPrn && (
           <div className="flex w-full flex-col gap-2">
             <h1 className="required-field text-[20px] font-medium">
               Date Issued
@@ -374,9 +440,46 @@ const PrescriptionOrderCategory = ({
                 required
                 type="date"
                 readOnly={tab ? tab.length > 0 : false}
-                className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                className={cn(
+                  "block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6",
+                  {
+                    "cursor-not-allowed":
+                      tab === "PrescriptionUpdate" || tab === "Prescription",
+                  },
+                )}
                 name="dateIssued"
-                value={formatCreatedAtDate(formData.dateIssued)}
+                value={formData.dateIssued}
+                onChange={handleChange}
+              />
+              <Image
+                className="pointer-events-none absolute right-0 top-0 mr-3 mt-3"
+                width={20}
+                height={20}
+                src={"/svgs/calendark.svg"}
+                alt={""}
+              />
+            </div>
+          </div>
+        )}
+        {!isPrn && (
+          <div className="flex w-full flex-col gap-2">
+            <h1 className="required-field text-[20px] font-medium">
+              Expiry Date
+            </h1>
+            <div className="relative flex">
+              <input
+                required
+                type="date"
+                readOnly={tab ? tab.length > 0 : false}
+                className={cn(
+                  "block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6",
+                  {
+                    "cursor-not-allowed":
+                      tab === "PrescriptionUpdate" || tab === "Prescription",
+                  },
+                )}
+                name="expiryDate"
+                value={formData.expiryDate}
                 onChange={handleChange}
               />
               <Image
@@ -390,35 +493,36 @@ const PrescriptionOrderCategory = ({
           </div>
         )}
 
-        {tab && (
-          <div className="flex w-full flex-col gap-2">
-            <h1 className="required-field text-[20px] font-medium">Status</h1>
-            {/* here */}
-            <div className="relative">
-              <select
-                required
-                // value={formData.status}
-                value={data.p_status || formData.status}
-                name="status"
-                onChange={handleDropDownChange}
-                disabled={tab ? tab.length > 0 : false}
-                className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
-              >
-                <option value="">Choose Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-              <Image
-                className="pointer-events-none absolute right-0 top-0 mr-3 mt-3"
-                width={20}
-                height={20}
-                src={"/svgs/chevron-up.svg"}
-                alt={""}
-              />
-            </div>
-            {/* here */}
+        <div className="flex w-full flex-col gap-2">
+          <h1 className="required-field text-[20px] font-medium">Status</h1>
+          <div className="relative">
+            <select
+              required
+              value={
+                formData.status || data.p_status || data.prescriptions_status
+              }
+              name="status"
+              onChange={handleDropDownChange}
+              disabled={!!tab && tab.length > 0 && tab !== "PrescriptionUpdate"}
+              className={cn(
+                "block h-12 w-full cursor-pointer rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6",
+                { "cursor-not-allowed": tab === "Prescription" },
+              )}
+            >
+              <option value="">Choose Status</option>
+              <option value="active">Active</option>
+              <option value="Discontinued">Discontinued</option>
+            </select>
+            <Image
+              className="pointer-events-none absolute right-0 top-0 mr-3 mt-3"
+              width={20}
+              height={20}
+              src={"/svgs/chevron-up.svg"}
+              alt={""}
+            />
           </div>
-        )}
+        </div>
+
         {!tab && (
           <div>
             {formFiles.length === 5 ? (
@@ -428,7 +532,7 @@ const PrescriptionOrderCategory = ({
                 <label
                   htmlFor="imageUpload"
                   className={cn(
-                    "relative flex h-[99px] w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-[#007C85] bg-[#daf3f5] text-center font-medium text-[#101828]",
+                    "relative flex h-[62px] w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-[#007C85] bg-[#daf3f5] text-center font-medium text-[#101828]",
                     { "h-[62px]": isPrn },
                   )}
                 >
@@ -502,7 +606,7 @@ const PrescriptionOrderCategory = ({
 
       {isPrn && (
         <div>
-          {/* <hr className="my-5 flex" /> */}
+          <hr className="my-5 flex" />
           {!tab && (
             <div className="grid grid-cols-7 gap-x-5">
               <div className="sub-title col-span-1">Duration:</div>
@@ -516,7 +620,14 @@ const PrescriptionOrderCategory = ({
                       required
                       type="date"
                       // readOnly={tab ? tab.length > 0 : false}
-                      className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                      className={cn(
+                        "block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6",
+                        {
+                          "cursor-not-allowed":
+                            tab === "PrescriptionUpdate" ||
+                            tab === "Prescription",
+                        },
+                      )}
                       name="startDate"
                       // value={parseDate(formData.startDate)}
                       // value={formatCreatedAtDate(formData.startDate)}
@@ -543,7 +654,14 @@ const PrescriptionOrderCategory = ({
                       required
                       type="date"
                       readOnly={tab ? tab.length > 0 : false}
-                      className="block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                      className={cn(
+                        "block h-12 w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6",
+                        {
+                          "cursor-not-allowed":
+                            tab === "PrescriptionUpdate" ||
+                            tab === "Prescription",
+                        },
+                      )}
                       name="endDate"
                       value={formData.endDate}
                       onChange={handleChange}
@@ -563,7 +681,7 @@ const PrescriptionOrderCategory = ({
         </div>
       )}
 
-      {!tab && (
+      {(!tab || tab === "PrescriptionUpdate") && (
         <div className="mt-5 flex w-full justify-end">
           <button
             onClick={() => {

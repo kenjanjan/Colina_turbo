@@ -19,6 +19,10 @@ export class UpdatePatientsInput extends PartialType(CreatePatientsInput) {
   address2?: string;
   state: string;
   zip: string;
+  room: string;
+  bed: string;
+
+  diagnosis: string;
   country: string;
   phoneNo: string;
   codeStatus: string;

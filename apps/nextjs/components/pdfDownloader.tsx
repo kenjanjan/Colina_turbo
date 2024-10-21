@@ -657,6 +657,7 @@ const PdfDownloader = ({ props, variant, patientId }: any) => {
         const prescriptionList = await fetchPrescriptionByPatient(
           patientId,
           "",
+          "",
           1,
           "name",
           "DESC",

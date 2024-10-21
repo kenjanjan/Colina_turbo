@@ -42,6 +42,12 @@ export class VitalSigns {
   time: string;
 
   @Column({ nullable: true })
+  height: string;
+  @Column({ nullable: true })
+  oxygen : string;
+  @Column({ nullable: true })
+  weight : string;
+  @Column({ nullable: true })
   @Field(() => Int)
   patientId: number;
 

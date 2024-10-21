@@ -43,6 +43,12 @@ export class Prescriptions {
   prescriptionType: string;
 
   @Column({ nullable: true })
+  dateIssued: string;
+
+  @Column({ nullable: true })
+  expiryDate: string;
+
+  @Column({ nullable: true })
   startDate: string;
 
   @Column({ nullable: true })

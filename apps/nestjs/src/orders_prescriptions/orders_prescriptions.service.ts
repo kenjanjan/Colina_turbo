@@ -98,7 +98,9 @@ export class OrdersPrescriptionsService {
             'p.frequency AS p_frequency',        // Frequency
             'p.prescriptionType AS p_prescriptionType', // Prescription Type
             'p.startDate AS p_startDate',        // Start Date
-            'p.endDate AS p_endDate'             // End Date
+            'p.endDate AS p_endDate',             // End Date
+            'p.dateIssued AS p_dateIssued',      // Date Issued
+            'p.expiryDate AS p_expiryDate',      // Expiry Date
         ])
         .orderBy(`${sortBy}`, sortOrder)
         .offset(skip)

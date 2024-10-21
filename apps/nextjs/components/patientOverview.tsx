@@ -78,7 +78,7 @@ export default function PatientOverviewComponent({
     },
     {
       label: "Prescription",
-      url: `/patient-overview/${params.id}/prescription`,
+      url: `/patient-overview/${params.id}/prescription/scheduled`,
     },
     {
       label: "Forms",
@@ -499,6 +499,7 @@ export default function PatientOverviewComponent({
                         (tabUrl === "surgeries" &&
                           tab.label === "Medical History") ||
                         (tabUrl === "prorenata" && tab.label === "MAR") ||
+                        (tabUrl === "prn" && tab.label === "Prescription") ||
                         (tabUrl === "dietary" && tab.label === "Orders") ||
                         (tabUrl === "laboratory" && tab.label === "Orders") ||
                         (tabUrl === "incident-report" &&

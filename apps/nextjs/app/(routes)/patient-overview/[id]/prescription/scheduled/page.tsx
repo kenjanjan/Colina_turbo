@@ -18,6 +18,8 @@ import Pagination from "@/components/shared/pagination";
 import Image from "next/image";
 import ResuableTooltip from "@/components/reusable/tooltip";
 import PdfDownloader from "@/components/pdfDownloader";
+import OrderModalContent from "@/components/modal-content/order-modal-content";
+import { formatCreatedAtDate } from "@/lib/utils";
 export default function prescription() {
   const router = useRouter();
   if (typeof window === "undefined") {
@@ -119,6 +121,7 @@ export default function prescription() {
         const response = await fetchPrescriptionsByPatient(
           patientId,
           term,
+          "ASCH",
           currentPage,
           sortBy,
           sortOrder as "ASC" | "DESC",
@@ -179,8 +182,23 @@ export default function prescription() {
       <div className="h-full w-full">
         <div className="mb-2 flex w-full justify-between">
           <div className="flex-row">
-            <p className="p-table-title">Prescription</p>
-
+            <div className="flex gap-2">
+              <p className="p-table-title">Prescription</p>
+              <span className="slash">{">"}</span>
+              <span className="active">Scheduled</span>
+              <span className="slash">{"/"}</span>
+              <span
+                onClick={() => {
+                  setIsLoading(true);
+                  router.push(
+                    `/patient-overview/${patientId.toLowerCase()}/prescription/prn`,
+                  );
+                }}
+                className="bread"
+              >
+                PRN
+              </span>
+            </div>
             <div>
               <p className="my-1 h-[23px] text-[15px] font-normal text-[#64748B]">
                 Total of {totalPrescription} Prescriptions
@@ -276,122 +294,128 @@ export default function prescription() {
               </div>
             ) : (
               <table className="text-left rtl:text-right">
-              <thead>
-                <tr className="h-[70px] border-b text-[15px] font-semibold uppercase text-[#64748B]">
-                  <td className="w-[222px] py-3 pl-6">PRESCRIPTION UID</td>
-                  <td className="w-[160px] py-3">TYPE</td>
-                  <td className="w-[160px] py-3">MEDICINE NAME</td>
-                  <td className="w-[160px] py-3">FREQUENCY</td>
-                  <td className="w-[160px] py-3">INTERVAL (hr/s)</td>
-                  <td className="w-[160px] py-3">DOSAGE</td>
-                  <td className="relative">
-                    <div
-                      className={`absolute ${filterStatusFromCheck?.length > 0 ? "left-[26px] top-[24px]" : "left-[26px] top-[24px]"}`}
-                    >
-                      <DropdownMenu
-                        options={optionsFilterStatus.map(
-                          ({ label, onClick }) => ({
-                            label,
-                            onClick: () => {
-                              // onClick(label);
-                              // console.log("label", label);
-                            },
-                          }),
-                        )}
-                        open={isOpenFilterStatus}
-                        width={"165px"}
-                        statusUpdate={handleStatusUpdate} // Pass the handler function
-                        checkBox={true}
-                        title={"Status"}
-                        label={"Status"}
-                      />
-                    </div>
-                  </td>{" "}
-                  <td className="relative px-6 py-3">
-                    <p className="absolute right-[114px] top-[24px]">
-                      ACTION
-                    </p>
-                  </td>{" "}
-                </tr>
-              </thead>
-              <tbody className="h-[254px]">
-                {patientPrescriptions.length > 0 && (
-                  <>
-                    {patientPrescriptions.map((prescription, index) => (
-                      <tr
-                        key={index}
-                        className="group h-[63px] border-b text-[15px] hover:bg-[#f4f4f4]"
+                <thead>
+                  <tr className="h-[70px] border-b text-[15px] font-semibold uppercase text-[#64748B]">
+                    <td className="w-[222px] py-3 pl-6">PRESCRIPTION UID</td>
+                    <td className="w-[160px] py-3">DATE ISSUED</td>
+                    <td className="w-[160px] py-3">EXPIRY DATE</td>
+                    <td className="w-[160px] py-3">MEDICINE NAME</td>
+                    <td className="w-[160px] py-3">FREQUENCY</td>
+                    <td className="w-[160px] py-3">INTERVAL (hr/s)</td>
+                    <td className="w-[160px] py-3">DOSAGE</td>
+                    <td className="relative">
+                      <div
+                        className={`absolute ${filterStatusFromCheck?.length > 0 ? "left-[26px] top-[24px]" : "left-[26px] top-[24px]"}`}
                       >
-                        <td className="w-[222px] py-3 pl-6">
-                          <ResuableTooltip
-                            text={prescription.prescriptions_uuid}
-                          />
-                        </td>
-                        <td className="w-[160px] py-3">
-                          <ResuableTooltip
-                            text={prescription.prescriptions_prescriptionType}
-                          />
-                        </td>
-                        <td className="w-[160px] py-3">
-                          <ResuableTooltip
-                            text={prescription.prescriptions_name}
-                          />
-                        </td>
-                        <td className="w-[160px] py-3">
-                          {prescription.prescriptions_frequency}
-                        </td>
-                        <td className="w-[160px] py-3">
-                          {prescription.prescriptions_interval === "1"
-                            ? "1 hour"
-                            : `${prescription.prescriptions_interval} hours`}
-                        </td>
-                        <td className="w-[160px] py-3">
-                          {prescription.prescriptions_dosage}
-                        </td>
-                        <td className="px-5 py-3">
-                          <div
-                            className={`relative flex h-[25px] w-[95px] items-center justify-center rounded-[30px] font-semibold capitalize placeholder:text-[15px] ${
-                              prescription.prescriptions_status === "active"
-                                ? "bg-[#dfffea] text-[#17C653]"
-                                : prescription.prescriptions_status ===
-                                    "inactive"
-                                  ? "bg-[#FEE9E9] text-[#EF4C6A]"
-                                  : prescription.prescriptions_status
-                            }`}
-                          >
-                            {prescription.prescriptions_status}
-                          </div>
-                        </td>
+                        <DropdownMenu
+                          options={optionsFilterStatus.map(
+                            ({ label, onClick }) => ({
+                              label,
+                              onClick: () => {
+                                // onClick(label);
+                                // console.log("label", label);
+                              },
+                            }),
+                          )}
+                          open={isOpenFilterStatus}
+                          width={"165px"}
+                          statusUpdate={handleStatusUpdate} // Pass the handler function
+                          checkBox={true}
+                          title={"Status"}
+                          label={"Status"}
+                        />
+                      </div>
+                    </td>{" "}
+                    <td className="relative px-6 py-3">
+                      <p className="absolute right-[114px] top-[24px]">
+                        ACTION
+                      </p>
+                    </td>{" "}
+                  </tr>
+                </thead>
+                <tbody className="h-[254px]">
+                  {patientPrescriptions.length > 0 && (
+                    <>
+                      {patientPrescriptions.map((prescription, index) => (
+                        <tr
+                          key={index}
+                          className="group h-[63px] border-b text-[15px] hover:bg-[#f4f4f4]"
+                        >
+                          <td className="w-[222px] py-3 pl-6">
+                            <ResuableTooltip
+                              text={prescription.prescriptions_uuid}
+                            />
+                          </td>
+                          <td className="w-[160px] py-3">
+                            <ResuableTooltip
+                              text={formatCreatedAtDate(prescription.prescriptions_dateIssued)}
+                            />
+                          </td>
+                          <td className="w-[160px] py-3">
+                            <ResuableTooltip
+                              text={formatCreatedAtDate(prescription.prescriptions_expiryDate)}
+                            />
+                          </td>
+                          <td className="w-[160px] py-3">
+                            <ResuableTooltip
+                              text={prescription.prescriptions_name}
+                            />
+                          </td>
+                          <td className="w-[160px] py-3">
+                            {prescription.prescriptions_frequency}
+                          </td>
+                          <td className="w-[160px] py-3">
+                            {prescription.prescriptions_interval === "1"
+                              ? "1 hour"
+                              : `${prescription.prescriptions_interval} hours`}
+                          </td>
+                          <td className="w-[160px] py-3">
+                            {prescription.prescriptions_dosage}
+                          </td>
+                          <td className="px-5 py-3">
+                            <div
+                              className={`relative flex h-[25px] w-[110px] items-center justify-center rounded-[30px] font-semibold capitalize placeholder:text-[15px] ${
+                                prescription.prescriptions_status === "active"
+                                  ? "bg-[#dfffea] text-[#17C653]"
+                                  : prescription.prescriptions_status ===
+                                      "Discontinued"
+                                    ? "bg-[#FEE9E9] px-2 text-[#EF4C6A]"
+                                    : prescription.prescriptions_status
+                              }`}
+                            >
+                              {prescription.prescriptions_status}
+                            </div>
+                          </td>
 
-                        <td className="relative w-[220px] py-3">
-                          <p
-                            onClick={() => {
-                              isModalOpen(true);
-                              setIsEdit(true);
-                              setPrescriptionData(prescription);
-                            }}
-                            className="absolute right-[146px] top-[11px]"
-                          >
-                            <Edit></Edit>
-                          </p>
-                          <p
-                            onClick={() => {
-                              isModalOpen(true);
-                              setIsView(true);
+                          <td className="relative w-[220px] py-3">
+                            <p
+                              onClick={() => {
+                                isModalOpen(true);
+                                setIsEdit(true);
+                                setPrescriptionData(prescription);
+                              }}
+                              className="absolute right-[146px] top-[11px]"
+                            >
+                              <Edit></Edit>
+                            </p>
+                            <p
+                              onClick={() => {
+                                isModalOpen(true);
+                                setIsView(true);
 
-                              setPrescriptionData(prescription);
-                            }}
-                            className="absolute right-[40px] top-[11px]"
-                          >
-                            <View></View>
-                          </p>
-                        </td>
-                      </tr>
-                    ))}
-                  </>
-                )}
-              </tbody>
-            </table>
+                                setPrescriptionData(prescription);
+                              }}
+                              className="absolute right-[40px] top-[11px]"
+                            >
+                              <View></View>
+                            </p>
+                          </td>
+                        </tr>
+                      ))}
+                    </>
+                  )}
+                </tbody>
+              </table>
             )}
           </div>
           {/* END OF TABLE */}
@@ -408,12 +432,12 @@ export default function prescription() {
       {isOpen && (
         <Modal
           content={
-            <PrescriptionModalContent
+            <OrderModalContent
+              tab={"PrescriptionUpdate"}
               isModalOpen={isModalOpen}
-              isOpen={isOpen}
-              label="sample label"
-              isEdit={isEdit}
-              prescriptionData={prescriptionData}
+              isOrder={isOpen}
+              data={prescriptionData}
+              setIsOrder={setIsOpen}
               onSuccess={onSuccess}
               onFailed={onFailed}
               setErrorMessage={setError}

@@ -31,6 +31,7 @@ const PatientCard = ({
   isNotesModalOpen,
   setIsLoading,
   prescriptionOrders,
+  setIsChartOrderOpen,
 }: {
   patientWithMedicationLogsToday: any;
   setPatientUuid: any;
@@ -39,6 +40,7 @@ const PatientCard = ({
   isNotesModalOpen: any;
   setIsLoading: any;
   prescriptionOrders: any;
+  setIsChartOrderOpen: any;
 }) => {
   const router = useRouter();
   const [currentTime, setCurrentTime] = useState(moment().format("HHmm"));
@@ -153,7 +155,16 @@ const PatientCard = ({
                 </div>
 
                 <div className="relative flex h-full w-1/6 flex-col items-center justify-between border-l-4 border-solid border-[#F4F4F4]">
-                  <div className="gray-1 flex h-full w-full cursor-pointer flex-col items-center justify-center border-b-4 border-[#F4F4F4]">
+                  <div
+                    className="gray-1 flex h-full w-full cursor-pointer flex-col items-center justify-center border-b-4 border-[#F4F4F4]"
+                    onClick={() => {
+                      setIsChartOrderOpen(true),
+                        setPatientUuid(patient.uuid),
+                        setPatientName(
+                          `${patient.firstName} ${patient.lastName}`,
+                        );
+                    }}
+                  >
                     <Image
                       src="/icons/chart-order.svg"
                       alt="order"
@@ -202,9 +213,9 @@ const PatientCard = ({
                       ),
                     )}
                   </div>
-                  <div className="flex ">
+                  <div className="flex">
                     <div
-                      className="flex w-1/2 cursor-pointer flex-col items-center justify-center m-2"
+                      className="m-2 flex w-1/2 cursor-pointer flex-col items-center justify-center"
                       onClick={() => {
                         setPatientUuid(patient.uuid);
                         isNotesModalOpen(true);
@@ -220,12 +231,12 @@ const PatientCard = ({
                         height={28}
                         className="pointer-events-none select-none"
                       />
-                      N
+                      P
                     </div>
                     <div className="h-full w-2 bg-[#F4F4F4]"></div>
 
                     <div
-                      className="flex w-1/2 cursor-pointer flex-col items-center justify-center m-2"
+                      className="m-2 flex w-1/2 cursor-pointer flex-col items-center justify-center"
                       onClick={() => {
                         setIsLoading(true);
                         handlePatientClick(patient.uuid, "appointment");

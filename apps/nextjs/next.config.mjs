@@ -7,7 +7,7 @@ const nextConfig = {
       {
         protocol: "http",
         hostname: "localhost",
-        port: "3001", // Specify the port if different from the default 80 for http or 443 for https
+        port: "3000", // Specify the port if different from the default 80 for http or 443 for https
         pathname: "/**",
       },
     ],

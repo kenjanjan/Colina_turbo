@@ -1,34 +1,34 @@
-const hemoglobinA1cRanges = [
+export const hemoglobinA1cRanges = [
     { type: 'normal', values: { min: 0, max: 5.69 } },
     { type: 'urgent', values: { min: 5.7, max: 6.4 } },
     { type: 'critical', values: { min: 6.5, max: Infinity } },
 ];
 
-const bloodGlucoseRanges = [
+export const bloodGlucoseRanges = [
     { type: 'normal', values: { min: 0, max: 99 } },
     { type: 'urgent', values: { min: 100, max: 125 } },
     { type: 'critical', values: { min: 126, max: Infinity } },
 ];
 
-const totalCholesterolRanges = [
+export const totalCholesterolRanges = [
     { type: 'normal', values: { min: 0, max: 199 } },
     { type: 'urgent', values: { min: 200, max: 239 } },
     { type: 'critical', values: { min: 240, max: Infinity } },
 ];
 
-const ldlCholesterolRanges = [
+export const ldlCholesterolRanges = [
     { type: 'normal', values: { min: 0, max: 99 } },
     { type: 'urgent', values: { min: 100, max: 159 } },
     { type: 'critical', values: { min: 160, max: Infinity } },
 ];
 
-const hdlCholesterolRanges = [
+export const hdlCholesterolRanges = [
     { type: 'normal', values: { min: 60, max: Infinity } },
     { type: 'urgent', values: { min: 40, max: 59 } },
     { type: 'critical', values: { min: 0, max: 39 } },
 ];
 
-const triglyceridesRanges = [
+export const triglyceridesRanges = [
     { type: 'normal', values: { min: 0, max: 149 } },
     { type: 'urgent', values: { min: 150, max: 199 } },
     { type: 'critical', values: { min: 200, max: Infinity } },

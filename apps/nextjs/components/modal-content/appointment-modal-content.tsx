@@ -18,8 +18,10 @@ interface Modalprops {
   appointmentId?: string;
   label: string;
   isOpen: boolean;
-  isModalOpen: (isOpen: boolean) => void;
+  isModalOpen: (isOpen: boolean) => void; 
   onSuccess: () => void;
+  setIsViewAppointment?: any;
+  isEdit?: boolean;
 }
 
 export const AppointmentModalContent = ({
@@ -30,6 +32,8 @@ export const AppointmentModalContent = ({
   isOpen,
   isModalOpen,
   onSuccess,
+  isEdit,
+  setIsViewAppointment,
 }: Modalprops) => {
   const router = useRouter();
   const params = useParams<{
@@ -37,7 +41,7 @@ export const AppointmentModalContent = ({
     tag: string;
     item: string;
   }>();
-  const patientId = params.id.toUpperCase();
+  const patientId = params?.id?.toUpperCase();
   const { toast } = useToast();
   const [selectedType, setSelectedType] = useState("");
 
@@ -122,8 +126,7 @@ export const AppointmentModalContent = ({
         setAppointmentViewData(response.data);
         console.log("Paaaa", response.data);
         console.log(response, "kanaa");
-      } catch (error: any) {
-      }
+      } catch (error: any) {}
     };
 
     fetchData();
@@ -191,8 +194,9 @@ export const AppointmentModalContent = ({
     appointmentTime: appointmentData.appointments_appointmentTime,
     appointmentEndTime: appointmentData.appointments_appointmentEndTime,
     details: appointmentData.appointments_details,
-    appointmentStatus:
-      appointmentData.appointments_appointmentStatus || "Scheduled",
+    appointmentStatus: appointmentData.appointments_appointmentStatus
+      ? appointmentData.appointments_appointmentStatus
+      : "Scheduled",
     rescheduleReason: appointmentData.appointments_rescheduleReason,
 
     // appointmentuuid: appointmentData.appointmentuuid,
@@ -291,7 +295,8 @@ export const AppointmentModalContent = ({
             </h2>
             <X
               onClick={() => {
-                isSubmitted ? null : isModalOpen(false);
+                isSubmitted ? null : isModalOpen(false),
+                  setIsViewAppointment?.(false);
               }}
               className={` ${isSubmitted && "cursor-not-allowed"} mr-9 mt-6 flex h-6 w-6 cursor-pointer items-center text-black`}
             />
@@ -610,31 +615,60 @@ export const AppointmentModalContent = ({
               >
                 Status
               </label>
-              <select
-                required
-                disabled={isView}
-                className="border-1 block h-12 w-full cursor-pointer border border-[#D0D5DD] px-3.5 py-2 sm:text-sm sm:leading-6"
-                name="appointmentStatus"
-                value={
-                  formData.appointmentStatus ||
-                  appointmentData.appointmentstatus
-                }
-                onChange={handleStatusChange}
-              >
-                <option disabled>
-                  {formData.appointmentStatus ||
-                    appointmentData.appointmentstatus}
-                </option>
-                {isView && formData.appointmentStatus !== "Scheduled" && (
-                  <option value="Resched">Resched</option>
-                )}
-                {isView && (
-                  <>
-                    <option value="Cancelled">Cancelled</option>
-                    <option value="Patient-In">Patient-In</option>
-                  </>
-                )}
-              </select>
+              {isView ? (
+                <select
+                  required
+                  disabled={isView}
+                  className="border-1 block h-12 w-full cursor-pointer border border-[#D0D5DD] px-3.5 py-2 sm:text-sm sm:leading-6"
+                  name="appointmentStatus"
+                  value={
+                    formData.appointmentStatus ||
+                    appointmentData.appointmentstatus === "Missed"
+                      ? "Missed"
+                      : appointmentData.appointmentstatus
+                  }
+                  onChange={handleStatusChange}
+                >
+                  <option disabled>
+                    {formData.appointmentStatus ||
+                      appointmentData.appointmentstatus}
+                  </option>
+                  {isView && formData.appointmentStatus !== "Scheduled" && (
+                    <option value="Resched">Resched</option>
+                  )}
+                  {isView && (
+                    <>
+                      <option value="Cancelled">Cancelled</option>
+                      <option value="Patient-In">Patient-In</option>
+                    </>
+                  )}
+                  {appointmentData.appointmentstatus === "Missed" && (
+                    <>
+                      <option value="Missed">Missed</option>
+                    </>
+                  )}
+                </select>
+              ) : (
+                <select
+                  required
+                  disabled={isView}
+                  className="border-1 block h-12 w-full cursor-pointer border border-[#D0D5DD] px-3.5 py-2 sm:text-sm sm:leading-6"
+                  name="appointmentStatus"
+                  value={formData.appointmentStatus}
+                  onChange={handleStatusChange}
+                >
+                  <option disabled={isEdit} value="Scheduled">
+                    Scheduled
+                  </option>
+                  {isEdit && (
+                    <>
+                      <option value="Resched">Resched</option>
+                      <option value="Cancelled">Cancelled</option>
+                      <option value="Patient-In">Patient-In</option>
+                    </>
+                  )}
+                </select>
+              )}
               <Image
                 className="pointer-events-none absolute right-0 top-0 mr-3 mt-12"
                 width={20}
@@ -666,7 +700,7 @@ export const AppointmentModalContent = ({
                   style={{ resize: "none" }}
                   name="details"
                   onChange={handleTextChange}
-                  value={formData.details || appointmentData.details}
+                  value={formData.details || appointmentData.appointmentdetails}
                   disabled={isView && !isEditable}
                 />
               </div>

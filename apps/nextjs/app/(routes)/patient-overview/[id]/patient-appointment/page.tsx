@@ -266,8 +266,8 @@ const Appointment = () => {
   }
 
   return (
-    <div className="flex h-full w-full flex-col justify-between">
-      <div className="h-full w-full">
+    <div className="flex h-full w-full flex-col justify-between overflow-hidden">
+      <div className="h-full w-full overflow-hidden">
         <div className="mb-2 flex w-full justify-between">
           <div className="flex-row">
             <p className="p-table-title">Appointment</p>
@@ -355,59 +355,51 @@ const Appointment = () => {
           <table className="text-left rtl:text-right">
             <thead>
               <tr className="h-[70px] border-b text-[15px] font-semibold uppercase text-[#64748B]">
-                <td className="w-[190px] py-3 pl-6">APPOINTMENT UID</td>
-                <td className="w-[130px] py-3">DATE</td>
-                <td className="w-[190px] py-3">DOCTOR'S NAME</td>
-                <td className="w-[130px] py-3">TIME</td>
-                <td className="w-[130px] py-3">END TIME</td>
-                {/* <td className="w-[160px] py-3">TYPE</td> */}
-                <td className="relative w-[170px]">
+                <td className="w-[10%] py-3 pl-4">APPOINTMENT UID</td>
+                <td className="w-[9%] py-3">DATE</td>
+                <td className="w-[11.5%] py-3">DOCTOR'S NAME</td>
+                <td className="w-[6%] py-3">TIME</td>
+                <td className="w-[6.5%] py-3">END TIME</td>
+                <td className="relative w-[9%]">
                   <div
                     className={`absolute ${filterStatusFromCheck?.length > 0 ? "top-[24px]" : "top-[24px]"}`}
                   >
                     <DropdownMenu
                       options={optionsFilterType.map(({ label, onClick }) => ({
                         label,
-                        onClick: () => {
-                          // onClick(label);
-                          // console.log("label", label);
-                        },
+                        onClick: () => {},
                       }))}
                       open={isOpenFilterStatus}
                       width={"165px"}
-                      statusUpdate={handleTypeUpdate} // Pass the handler function
+                      statusUpdate={handleTypeUpdate}
                       checkBox={true}
                       title={"Type"}
                       label={"Type"}
                     />
                   </div>
                 </td>
-                <td className="w-[150px] py-3">DETAILS</td>
-
-                <td className="relative">
+                <td className="w-[9%] py-3">DETAILS</td>
+                <td className="relative w-[11%]">
                   <div
-                    className={`absolute ${filterStatusFromCheck?.length > 0 ? "left-[26px] top-[24px]" : "left-[26px] top-[24px]"}`}
+                    className={`absolute ${filterStatusFromCheck?.length > 0 ? "left-[90px] top-[24px]" : "left-[90px] top-[24px]"}`}
                   >
                     <DropdownMenu
                       options={optionsFilterStatus.map(
                         ({ label, onClick }) => ({
                           label,
-                          onClick: () => {
-                            // onClick(label);
-                            // console.log("label", label);
-                          },
+                          onClick: () => {},
                         }),
                       )}
                       open={isOpenFilterStatus}
                       width={"165px"}
-                      statusUpdate={handleStatusUpdate} // Pass the handler function
+                      statusUpdate={handleStatusUpdate}
                       checkBox={true}
                       title={"Status"}
                       label={"Status"}
                     />
                   </div>
                 </td>
-                <td className="relative px-6 py-3">
+                <td className="relative w-[18%] px-6 py-3">
                   <p className="absolute right-[114px] top-[24px]">ACTION</p>
                 </td>
               </tr>
@@ -415,113 +407,120 @@ const Appointment = () => {
             <tbody className="h-[254px]">
               {patientAppointments.length === 0 && (
                 <tr>
-                  <td className="border-1 absolute flex w-[180vh] items-center justify-center py-5">
+                  <td className="border-1 absolute flex w-full items-center justify-center py-5">
                     <p className="text-center text-[15px] font-normal text-gray-700">
                       No Appointment/s <br />
                     </p>
                   </td>
                 </tr>
               )}
-              {patientAppointments.length > 0 && (
-                <>
-                  {patientAppointments.map((appointments, index) => (
-                    <tr
-                      key={index}
-                      className="group h-[63px] border-b text-[15px] hover:bg-[#f4f4f4]"
-                    >
-                      <td className="w-[190px] py-3 pl-6">
-                        {appointments.appointments_uuid}
-                      </td>
-
-                      <td className="w-[130px] py-3">
-                        {formatDate(appointments.appointments_appointmentDate)}
-                      </td>
-                      <td className="w-[190px] py-3">
-                        <ResuableTooltip
-                          text={appointments.appointments_appointmentDoctor}
-                        />
-                      </td>
-                      <td className="w-[130px] py-3">
-                        {formatTime(appointments.appointments_appointmentTime)}
-                      </td>
-                      <td className="w-[130px] py-3">
-                        {formatTime(
-                          appointments.appointments_appointmentEndTime,
-                        )}
-                      </td>
-                      <td className="w-[170px] py-3">
-                        <ResuableTooltip
-                          text={appointments.appointments_appointmentType}
-                        />
-                      </td>
-                      <td className="w-[150px] py-3">
-                        <ResuableTooltip
-                          text={appointments.appointments_details}
-                        />
-                      </td>
-                      <td className="px-5 py-3">
-                        <div
-                          className={`relative flex h-[25px] w-[95px] items-center justify-center rounded-[30px] font-semibold capitalize placeholder:text-[15px] ${
-                            appointments.appointments_appointmentStatus ===
-                            "Scheduled"
-                              ? "bg-[#E7EAEE] text-[#71717A]" // Green color for Scheduled
-                              : appointments.appointments_appointmentStatus ===
-                                  "Done"
-                                ? "bg-[#CCFFDD] text-[#17C653]" // Dark color for Done
-                                : appointments.appointments_appointmentStatus ===
-                                      "Patient-IN" ||
-                                    appointments.appointments_appointmentStatus ===
-                                      "On-going"
-                                  ? "bg-[#FFF8DD] text-[#F6C000]" // Yellow for On Going
+              <div className="w-full">
+                {patientAppointments.length > 0 && (
+                  <table className="min-w-full table-fixed ">
+                    <tbody>
+                      {patientAppointments.map((appointments, index) => (
+                        <tr
+                          key={index}
+                          className="group h-[63px] border-b text-[14px] hover:bg-[#f4f4f4]"
+                        >
+                          <td className="w-[11%] truncate py-2 pl-4">
+                            {appointments.appointments_uuid}
+                          </td>
+                          <td className="w-[10%] truncate py-2">
+                            {formatDate(
+                              appointments.appointments_appointmentDate,
+                            )}
+                          </td>
+                          <td className="w-[13%] truncate py-2">
+                            <ResuableTooltip
+                              text={appointments.appointments_appointmentDoctor}
+                            />
+                          </td>
+                          <td className="w-[7%] truncate py-2">
+                            {formatTime(
+                              appointments.appointments_appointmentTime,
+                            )}
+                          </td>
+                          <td className="w-[7%] truncate py-2">
+                            {formatTime(
+                              appointments.appointments_appointmentEndTime,
+                            )}
+                          </td>
+                          <td className="w-[10%] truncate py-2">
+                            <ResuableTooltip
+                              text={appointments.appointments_appointmentType}
+                            />
+                          </td>
+                          <td className="w-[15%] truncate py-2">
+                            <ResuableTooltip
+                              text={appointments.appointments_details}
+                            />
+                          </td>
+                          <td className="py-2 w-[10%]">
+                            <div
+                              className={`relative  flex h-[25px] w-[90px] items-center justify-center rounded-[30px] text-[14px] font-semibold capitalize ${
+                                appointments.appointments_appointmentStatus ===
+                                "Scheduled"
+                                  ? "bg-[#E7EAEE] text-[#71717A]"
                                   : appointments.appointments_appointmentStatus ===
-                                      "Missed"
-                                    ? "bg-[#FFE8EC] text-[#EF4C6A]" // Red color for Missed
+                                      "Done"
+                                    ? "bg-[#CCFFDD] text-[#17C653]"
                                     : appointments.appointments_appointmentStatus ===
-                                          "Cancelled" ||
+                                          "Patient-IN" ||
                                         appointments.appointments_appointmentStatus ===
-                                          "Resched"
-                                      ? "bg-[#FFE8EC] text-[#EF4C6A]" // Red color for Cancelled
-                                      : ""
-                          }`}
-                        >
-                          {appointments.appointments_appointmentStatus}
-                        </div>
-                      </td>
-                      <td className="relative py-3 pl-6">
-                        <p
-                          onClick={() => {
-                            isModalOpen(true);
-                            setIsEdit(false);
-                            setAppointmentData(appointments);
-                          }}
-                          className="absolute right-[253px] top-[11px]"
-                        >
-                          <Edit></Edit>
-                        </p>
-                        <p
-                          onClick={() => {
-                            isModalOpen(true);
-                            setIsEdit(true);
-                            setAppointmentData(appointments);
-                          }}
-                          className="absolute right-[146px] top-[11px]"
-                        >
-                          <View name="View"></View>
-                        </p>
-                        <p
-                          onClick={() => {
-                            setAppointmentId(appointments.appointments_uuid);
-                            setIsOrder(true);
-                          }}
-                          className="absolute right-[40px] top-[11px]"
-                        >
-                          <View name="Order"></View>
-                        </p>
-                      </td>
-                    </tr>
-                  ))}
-                </>
-              )}
+                                          "On-going"
+                                      ? "bg-[#FFF8DD] text-[#F6C000]"
+                                      : appointments.appointments_appointmentStatus ===
+                                            "Missed" ||
+                                          appointments.appointments_appointmentStatus ===
+                                            "Cancelled" ||
+                                          appointments.appointments_appointmentStatus ===
+                                            "Resched"
+                                        ? "bg-[#FFE8EC] text-[#EF4C6A]"
+                                        : ""
+                              }`}
+                            >
+                              {appointments.appointments_appointmentStatus}
+                            </div>
+                          </td>
+                          <td className="flex w-[15%] gap-x-2 py-2">
+                            <p
+                              onClick={() => {
+                                isModalOpen(true);
+                                setIsEdit(true);
+                                setIsView(false);
+                                setAppointmentData(appointments);
+                              }}
+                            >
+                              <Edit className="w-[76px]" />
+                            </p>
+                            <p
+                              onClick={() => {
+                                isModalOpen(true);
+                                setIsView(true);
+                                setIsEdit(false);
+                                setAppointmentData(appointments);
+                              }}
+                            >
+                              <View name="View" className="w-[76px]" />
+                            </p>
+                            <p
+                              onClick={() => {
+                                setAppointmentId(
+                                  appointments.appointments_uuid,
+                                );
+                                setIsOrder(true);
+                              }}
+                            >
+                              <View name="Order" className="w-[76px]" />
+                            </p>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
             </tbody>
           </table>
         </div>
@@ -542,7 +541,8 @@ const Appointment = () => {
               isModalOpen={isModalOpen}
               onSuccess={onSuccess}
               isOpen={isOpen}
-              isView={isEdit}
+              isView={isView}
+              isEdit={isEdit}
               appointmentData={appointmentData}
               label="sample label"
             />

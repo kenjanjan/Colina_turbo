@@ -114,6 +114,13 @@ export class Patients {
   @Column({ type: 'date', nullable: true })
   incidentReportDate: Date;
 
+  @Column({ nullable: true })
+  diagnosis: string;
+  @Column({ nullable: true })
+  room: string;
+  @Column({ nullable: true })
+  bed: string;
+
   @UpdateDateColumn({ name: 'updatedAt', nullable: true })
   updatedAt: string;
 

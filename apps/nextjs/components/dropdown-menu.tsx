@@ -121,12 +121,12 @@ const DropdownMenu = ({
   };
 
   return (
-    <div className={`w-full max-w-[166px] w-${width} `} ref={menuRef}>
+    <div className={`w-full  max-w-[166px] w-${width} `} ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={` relative flex items-center justify-between   rounded-[5px] bg-white  text-[15px] font-semibold text-[#191D23] ${!isCheckBox ? "w-full text-opacity-60 p-4 drop-shadow-dropDown" : "uppercase text-[#64748B]"}`}
       >
-        <span className={` ${title ? "" : "ml-3"}`}>
+        <span className={` ${title ? "" : "ml-3"} truncate`}>
           {optionLabel}
           </span>
         <Image

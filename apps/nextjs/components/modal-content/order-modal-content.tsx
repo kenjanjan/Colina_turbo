@@ -15,11 +15,12 @@ const OrderModalContent = ({
   appointmentId,
   onSuccess = () => {},
   onFailed = () => {},
+  setIsUpdated,
   setErrorMessage,
 }: ModalProps) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [category, setCategory] = useState("");
-  const [isPrn, setIsPrn] = useState<boolean>(true); // default is PRN
+  const [isPrn, setIsPrn] = useState<boolean>(false); // default is PRN
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { value } = e.target;
     setCategory(value);
@@ -32,11 +33,15 @@ const OrderModalContent = ({
         <div className="flex justify-between gap-x-72">
           <div className="flex flex-col">
             <h1 className="text-[20px] font-medium">
-              Add{" "}
-              {category === "Prescription"
-                ? category + (isPrn ? " PRN" : " Schedule")
-                : category || tab}{" "}
-              to Order List
+              {tab === "PrescriptionUpdate"
+                ? "Update Prescription":
+                tab === "Dietary"
+                ? "Dietary Order"
+                : `${tab === "Prescription" ? "View" : "Add"} ${
+                    category === "Prescription"
+                      ? category + (isPrn ? " PRN" : " Schedule")
+                      : category || tab || ""
+                  } ${tab === "Prescription" ? "" : "to Order List"}`}
             </h1>
             {category || tab ? (
               <p className="sub-title">Submit your log details.</p>
@@ -68,7 +73,7 @@ const OrderModalContent = ({
 
               // Close the order modal if setIsOrderModalOpen is defined
               if (setIsOrderModalOpen) {
-                setIsOrderModalOpen(false);
+                setIsOrderModalOpen ? setIsOrderModalOpen(false) : null;
               }
 
               // Call isModalOpen to close the generic modal
@@ -115,7 +120,9 @@ const OrderModalContent = ({
         {/* Content */}
 
         {(category || tab) &&
-          (category === "Prescription" || tab === "Prescription" ? (
+          (category === "Prescription" ||
+          tab === "Prescription" ||
+          tab === "PrescriptionUpdate" ? (
             <PrescriptionOrderCategory
               data={data}
               tab={tab}
@@ -130,6 +137,7 @@ const OrderModalContent = ({
               onSuccess={onSuccess}
               onFailed={onFailed}
               setErrorMessage={setErrorMessage}
+              setIsUpdated={setIsUpdated ? setIsUpdated : undefined}
             />
           ) : category === "Dietary" || tab === "Dietary" ? (
             <DietaryOrderCategory

@@ -19,6 +19,7 @@ import { formatTableDate } from "@/lib/utils";
 import PdfDownloader from "@/components/pdfDownloader";
 
 import {
+  bloodGlucoseRanges,
   getBloodGlucoseCategoryClass,
   getHdlCholesterolCategoryClass,
   getHemoglobinA1cCategoryClass,
@@ -26,6 +27,11 @@ import {
   getRowClassName,
   getTotalCholesterolCategoryClass,
   getTriglyceridesCategoryClass,
+  hdlCholesterolRanges,
+  hemoglobinA1cRanges,
+  ldlCholesterolRanges,
+  totalCholesterolRanges,
+  triglyceridesRanges,
 } from "@/lib/valuesCategory/labResultsCategories";
 export default function Laboratoryresults() {
   const router = useRouter();
@@ -52,7 +58,9 @@ export default function Laboratoryresults() {
   const [sortBy, setSortBy] = useState("createdAt");
   const [isEdit, setIsEdit] = useState(false);
   const [isView, setIsView] = useState(false);
-
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [activeTooltip, setActiveTooltip] = useState("");
+  const [tooltipText, setTooltipText] = useState("");
   const [isUpdated, setIsUpdated] = useState(false);
 
   const handleOrderOptionClick = (option: string) => {
@@ -155,6 +163,36 @@ export default function Laboratoryresults() {
     isModalOpen(false);
   };
 
+  const tooltipContent = {
+    hemoglobinA1cRanges: hemoglobinA1cRanges,
+    bloodGlucoseRanges: bloodGlucoseRanges,
+    totalCholesterolRanges: totalCholesterolRanges,
+    ldlCholesterolRanges: ldlCholesterolRanges,
+    hdlCholesterolRanges: hdlCholesterolRanges,
+    triglyceridesRanges: triglyceridesRanges,
+  };
+
+  const handleMouseEnter = (key: keyof typeof tooltipContent) => {
+    const ranges = tooltipContent[key];
+    const formattedText = ranges
+      .map(
+        (range) =>
+          `${range.type.charAt(0).toUpperCase() + range.type.slice(1)}: ${range.values.min} - ${range.values.max === Infinity ? "above" : range.values.max}`,
+      )
+      .join("\n"); // Join with newline for display
+
+    setTooltipText(formattedText);
+    setShowTooltip(true);
+    setActiveTooltip(key);
+  };
+
+  // Event handler for when mouse leaves the line
+  const handleMouseLeave = () => {
+    setShowTooltip(false);
+    setTooltipText("");
+    setActiveTooltip("");
+  };
+
   return (
     <div className="flex h-full w-full flex-col justify-between">
       <div className="h-full w-full">
@@ -252,12 +290,171 @@ export default function Laboratoryresults() {
               <tr className="h-[70px] border-b text-[15px] font-semibold text-[#64748B]">
                 <td className="w-[160px] py-3 pl-6">LAB RESULT UID</td>
                 <td className="w-[120px] py-3">DATE</td>
-                <td className="w-[120px] py-3">HEMO A1c (%)</td>
-                <td className="w-[120px] py-3">FBG (mg/dL)</td>
-                <td className="w-[120px] py-3">TC (mg/dL)</td>
-                <td className="w-[120px] py-3">LDL-C (mg/dL)</td>
-                <td className="w-[120px] py-3">HDL-C (mg/dL)</td>
-                <td className="w-[120px] py-3">TG (mg/dL)</td>
+                <td
+                  className="w-[120px] py-3"
+                  onMouseEnter={() => handleMouseEnter("hemoglobinA1cRanges")}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <span className="flex items-center gap-1">
+                    HEMO A1c (%){" "}
+                    <span>
+                      <Image
+                        src={"/icons/optional-icon.svg"}
+                        alt="information icon"
+                        width={12}
+                        height={12}
+                      />
+                    </span>
+                  </span>
+                  {showTooltip && activeTooltip === "hemoglobinA1cRanges" && (
+                    <div className="absolute z-50 -mt-28 flex max-w-[429px] flex-col overflow-visible rounded-md bg-[#007C85] px-2 py-1 text-white">
+                      {tooltipText.split("\n").map((line, index) => (
+                        <span key={index} className="whitespace-nowrap">
+                          {line}
+                        </span>
+                      ))}
+                      <div className="absolute bottom-[-5px] left-1/2 z-[49] h-3 w-3 -translate-x-1/2 rotate-45 transform bg-[#007C85]"></div>
+                    </div>
+                  )}
+                </td>
+                <td
+                  className="w-[120px] py-3"
+                  onMouseEnter={() => handleMouseEnter("bloodGlucoseRanges")}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <span className="flex items-center gap-1">
+                    FBG (mg/dL)
+                    <span>
+                      <Image
+                        src={"/icons/optional-icon.svg"}
+                        alt="information icon"
+                        width={12}
+                        height={12}
+                      />
+                    </span>
+                  </span>
+                  {showTooltip && activeTooltip === "bloodGlucoseRanges" && (
+                    <div className="absolute z-50 -mt-28 flex max-w-[429px] flex-col overflow-visible rounded-md bg-[#007C85] px-2 py-1 text-white">
+                      {tooltipText.split("\n").map((line, index) => (
+                        <span key={index} className="whitespace-nowrap">
+                          {line}
+                        </span>
+                      ))}
+                      <div className="absolute bottom-[-5px] left-1/2 z-[49] h-3 w-3 -translate-x-1/2 rotate-45 transform bg-[#007C85]"></div>
+                    </div>
+                  )}
+                </td>
+                <td
+                  className="w-[120px] py-3"
+                  onMouseEnter={() =>
+                    handleMouseEnter("totalCholesterolRanges")
+                  }
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <span className="flex items-center gap-1">
+                    TC (mg/dL)
+                    <span>
+                      <Image
+                        src={"/icons/optional-icon.svg"}
+                        alt="information icon"
+                        width={12}
+                        height={12}
+                      />
+                    </span>
+                  </span>
+                  {showTooltip &&
+                    activeTooltip === "totalCholesterolRanges" && (
+                      <div className="absolute z-50 -mt-28 flex max-w-[429px] flex-col overflow-visible rounded-md bg-[#007C85] px-2 py-1 text-white">
+                        {tooltipText.split("\n").map((line, index) => (
+                          <span key={index} className="whitespace-nowrap">
+                            {line}
+                          </span>
+                        ))}
+                        <div className="absolute bottom-[-5px] left-1/2 z-[49] h-3 w-3 -translate-x-1/2 rotate-45 transform bg-[#007C85]"></div>
+                      </div>
+                    )}
+                </td>
+                <td
+                  className="w-[120px] py-3"
+                  onMouseEnter={() => handleMouseEnter("ldlCholesterolRanges")}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <span className="flex items-center gap-1">
+                    LDL-C (mg/dL)
+                    <span>
+                      <Image
+                        src={"/icons/optional-icon.svg"}
+                        alt="information icon"
+                        width={12}
+                        height={12}
+                      />
+                    </span>
+                  </span>
+                  {showTooltip && activeTooltip === "ldlCholesterolRanges" && (
+                    <div className="absolute z-50 -mt-28 flex max-w-[429px] flex-col overflow-visible rounded-md bg-[#007C85] px-2 py-1 text-white">
+                      {tooltipText.split("\n").map((line, index) => (
+                        <span key={index} className="whitespace-nowrap">
+                          {line}
+                        </span>
+                      ))}
+                      <div className="absolute bottom-[-5px] left-1/2 z-[49] h-3 w-3 -translate-x-1/2 rotate-45 transform bg-[#007C85]"></div>
+                    </div>
+                  )}
+                </td>
+                <td
+                  className="w-[120px] py-3"
+                  onMouseEnter={() => handleMouseEnter("hdlCholesterolRanges")}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <span className="flex items-center gap-1">
+                    HDL-C (mg/dL)
+                    <span>
+                      <Image
+                        src={"/icons/optional-icon.svg"}
+                        alt="information icon"
+                        width={12}
+                        height={12}
+                      />
+                    </span>
+                  </span>
+                  {showTooltip && activeTooltip === "hdlCholesterolRanges" && (
+                    <div className="absolute z-50 -mt-28 flex max-w-[429px] flex-col overflow-visible rounded-md bg-[#007C85] px-2 py-1 text-white">
+                      {tooltipText.split("\n").map((line, index) => (
+                        <span key={index} className="whitespace-nowrap">
+                          {line}
+                        </span>
+                      ))}
+                      <div className="absolute bottom-[-5px] left-1/2 z-[49] h-3 w-3 -translate-x-1/2 rotate-45 transform bg-[#007C85]"></div>
+                    </div>
+                  )}
+                </td>
+                <td
+                  className="w-[120px] py-3"
+                  onMouseEnter={() => handleMouseEnter("triglyceridesRanges")}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <span className="flex items-center gap-1">
+                    TG (mg/dL)
+                    <span>
+                      <Image
+                        src={"/icons/optional-icon.svg"}
+                        alt="information icon"
+                        width={12}
+                        height={12}
+                      />
+                    </span>
+                  </span>
+                  {showTooltip && activeTooltip === "triglyceridesRanges" && (
+                    <div className="absolute z-50 -mt-28 flex max-w-[429px] flex-col overflow-visible rounded-md bg-[#007C85] px-2 py-1 text-white">
+                      {tooltipText.split("\n").map((line, index) => (
+                        <span key={index} className="whitespace-nowrap">
+                          {line}
+                        </span>
+                      ))}
+                      <div className="absolute bottom-[-5px] left-1/2 z-[49] h-3 w-3 -translate-x-1/2 rotate-45 transform bg-[#007C85]"></div>
+                    </div>
+                  )}
+                </td>
                 <td className="relative w-[220px] px-6 py-3">
                   <p className="absolute right-[114px] top-[24px]">ACTION</p>
                 </td>
@@ -407,8 +604,8 @@ export default function Laboratoryresults() {
         <Modal
           content={
             <LabresultsModalContent
-              label="LabResultTab"
               isModalOpen={isModalOpen}
+              label="labResults"
               isEdit={isEdit}
               labResultData={labResultData}
               appointmentData={true}

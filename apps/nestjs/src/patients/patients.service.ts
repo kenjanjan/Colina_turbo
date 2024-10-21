@@ -96,6 +96,9 @@ export class PatientsService {
         'codeStatus',
         'mobility',
         'dietaryRestrictions',
+        'diagnosis',
+        'room',
+        'bed',
         
       ],
       where: { uuid: id },
@@ -167,6 +170,9 @@ export class PatientsService {
         'patient.lastName',
         'patient.age',
         'patient.gender',
+        'patient.bed',
+        'patient.room',
+        
       ]);
 
     // // Check if the search term is a UUID
@@ -409,6 +415,7 @@ export class PatientsService {
         'patient.lastName',
         'patient.middleName',
         'patient.age',
+        'patient.diagnosis',
         'patient.admissionDate',
         'patient.gender',
         'patient.age',
@@ -622,6 +629,9 @@ console.log(totalMedicationCount.medicationCount, 'totalMedicationCount');
         'patient.lastName',
         'patient.uuid',
         'patient.admissionDate',
+        'patient.diagnosis',
+        'patient.room',
+        'patient.bed',
       ])
       .where('patient.uuid = :uuid', { uuid: id });
 

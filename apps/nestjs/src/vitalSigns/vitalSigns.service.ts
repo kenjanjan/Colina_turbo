@@ -72,6 +72,9 @@ export class VitalSignsService {
         'vitalsign.heartRate',
         'vitalsign.temperature',
         'vitalsign.respiratoryRate',
+        'vitalsign.oxygen',
+        'vitalsign.height',
+        'vitalsign.weight',
         'vitalsign.createdAt',
         'patient.uuid',
       ])

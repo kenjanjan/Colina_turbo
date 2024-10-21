@@ -63,6 +63,9 @@ export const DemographicModalContent = ({
     country: "",
     zip: "",
     admissionDate: new Date().toISOString().slice(0, 10),
+    diagnosis: "",
+    bed: "",
+    room: "",
     codeStatus: "",
     email: "",
     height: "",
@@ -170,6 +173,9 @@ export const DemographicModalContent = ({
         address2: "",
         state: "",
         country: "",
+        diagnosis: "",
+        bed: "",
+        room: "",
         zip: "",
         admissionDate: "",
         codeStatus: "",
@@ -615,98 +621,84 @@ export const DemographicModalContent = ({
                     </div>
                   </div>
                 </div>
-                <div>
-                  <label
-                    htmlFor="first-name"
-                    className="required-field block text-[20px] font-medium leading-6"
-                  >
-                    Dietary Restriction
-                  </label>
-                  <div className="mt-3">
-                    <input
-                      type="text"
-                      required
-                      className="block h-[48px] w-full rounded-md border-0 px-3.5 py-2 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:mr-1 placeholder:text-[15px] placeholder:text-[#64748B] sm:text-sm sm:leading-6"
-                      placeholder="input dietary restriction"
-                      name="dietaryRestriction"
-                      value={formData.dietaryRestriction}
-                      onChange={handleChange}
-                    />
+                <div className="flex w-full flex-row gap-5">
+                  <div className="w-full">
+                    <label
+                      htmlFor="first-name"
+                      className="required-field block text-[20px] font-medium leading-6"
+                    >
+                      Dietary
+                    </label>
+                    <div className="mt-3 w-full">
+                      <input
+                        type="text"
+                        required
+                        className="block h-[48px] w-full rounded-md border-0 px-3.5 py-2 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:mr-1 placeholder:text-[15px] placeholder:text-[#64748B] sm:text-sm sm:leading-6"
+                        placeholder="input dietary"
+                        name="dietaryRestriction"
+                        value={formData.dietaryRestriction}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+                  <div className="w-full">
+                    <label
+                      htmlFor="first-name"
+                      className="required-field block text-[20px] font-medium leading-6"
+                    >
+                      Diagnosis
+                    </label>
+                    <div className="mt-3 w-full">
+                      <input
+                        type="text"
+                        required
+                        className="block h-[48px] w-full rounded-md border-0 px-3.5 py-2 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:mr-1 placeholder:text-[15px] placeholder:text-[#64748B] sm:text-sm sm:leading-6"
+                        placeholder="input diagnosis"
+                        name="diagnosis"
+                        value={formData.diagnosis}
+                        onChange={handleChange}
+                      />
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <label
-                    htmlFor="first-name"
-                    className="required-field block text-[20px] font-medium leading-6"
-                  >
-                    Phone Number
-                  </label>
-                  <div className="mt-3">
-                    <input
-                      type="text"
-                      required
-                      className="block h-[48px] w-full rounded-md border-0 px-3.5 py-2 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:mr-1 placeholder:text-[15px] placeholder:text-[#64748B] sm:text-sm sm:leading-6"
-                      placeholder="input phone number"
-                      name="phoneNo"
-                      value={formData.phoneNo}
-                      onChange={handleChange}
-                    />
+                <div className="flex w-full flex-row gap-5">
+                  <div className="w-full">
+                    <label
+                      htmlFor="first-name"
+                      className="required-field block text-[20px] font-medium leading-6"
+                    >
+                      Room No.
+                    </label>
+                    <div className="mt-3 w-full">
+                      <input
+                        type="text"
+                        required
+                        className="block h-[48px] w-full rounded-md border-0 px-3.5 py-2 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:mr-1 placeholder:text-[15px] placeholder:text-[#64748B] sm:text-sm sm:leading-6"
+                        placeholder="input room no."
+                        name="room"
+                        value={formData.room}
+                        onChange={handleChange}
+                      />
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <label
-                    htmlFor="first-name"
-                    className="not-required block text-[20px] font-medium leading-6"
-                  >
-                    Email
-                  </label>
-                  <div className="mt-3">
-                    <input
-                      type="email"
-                      className="block h-[48px] w-full rounded-md border-0 px-3.5 py-2 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:mr-1 placeholder:text-[15px] placeholder:text-[#64748B] sm:text-sm sm:leading-6"
-                      placeholder="input email example@gmail.com"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="first-name"
-                    className="required-field block text-[20px] font-medium leading-6"
-                  >
-                    Address 1
-                  </label>
-                  <div className="mt-3">
-                    <input
-                      type="text"
-                      required
-                      className="block h-[48px] w-full rounded-md border-0 px-3.5 py-2 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:mr-1 placeholder:text-[15px] placeholder:text-[#64748B] sm:text-sm sm:leading-6"
-                      placeholder="input address 1"
-                      name="address1"
-                      value={formData.address1}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label
-                    htmlFor="first-name"
-                    className="not-required block text-[20px] font-medium leading-6"
-                  >
-                    Address 2
-                  </label>
-                  <div className="mt-3">
-                    <input
-                      type="text"
-                      className="block h-[48px] w-full rounded-md border-0 px-3.5 py-2 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:mr-1 placeholder:text-[15px] placeholder:text-[#64748B] sm:text-sm sm:leading-6"
-                      placeholder="input address 2"
-                      name="address2"
-                      value={formData.address2}
-                      onChange={handleChange}
-                    />
+                  <div className="w-full">
+                    <label
+                      htmlFor="first-name"
+                      className="required-field block text-[20px] font-medium leading-6"
+                    >
+                      Bed No.
+                    </label>
+                    <div className="mt-3 w-full">
+                      <input
+                        type="text"
+                        required
+                        className="block h-[48px] w-full rounded-md border-0 px-3.5 py-2 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:mr-1 placeholder:text-[15px] placeholder:text-[#64748B] sm:text-sm sm:leading-6"
+                        placeholder="input bed no."
+                        name="bed"
+                        value={formData.bed}
+                        onChange={handleChange}
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -763,6 +755,7 @@ export const DemographicModalContent = ({
                     </div>
                   </div>
                 </div>
+
                 <div className="flex flex-row gap-5">
                   <div className="w-full">
                     <label
@@ -803,6 +796,7 @@ export const DemographicModalContent = ({
                     </div>
                   </div>
                 </div>
+
                 <div className="flex flex-row gap-5">
                   <div className="w-full">
                     <label
@@ -838,6 +832,46 @@ export const DemographicModalContent = ({
                   </div>
                   <div className="w-full">
                     <label
+                      htmlFor="first-name"
+                      className="required-field block text-[20px] font-medium leading-6"
+                    >
+                      Phone Number
+                    </label>
+                    <div className="mt-3">
+                      <input
+                        type="text"
+                        required
+                        className="block h-[48px] w-full rounded-md border-0 px-3.5 py-2 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:mr-1 placeholder:text-[15px] placeholder:text-[#64748B] sm:text-sm sm:leading-6"
+                        placeholder="input phone number"
+                        name="phoneNo"
+                        value={formData.phoneNo}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-row gap-5">
+                  <div className="w-full">
+                    <label
+                      htmlFor="first-name"
+                      className="not-required block text-[20px] font-medium leading-6"
+                    >
+                      Email
+                    </label>
+                    <div className="mt-3">
+                      <input
+                        type="email"
+                        className="block h-[48px] w-full rounded-md border-0 px-3.5 py-2 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:mr-1 placeholder:text-[15px] placeholder:text-[#64748B] sm:text-sm sm:leading-6"
+                        placeholder="input email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+                  <div className="w-full">
+                    <label
                       htmlFor="last-name"
                       className="required-field block text-[20px] font-medium leading-6"
                     >
@@ -860,6 +894,44 @@ export const DemographicModalContent = ({
                         alt={""}
                       />
                     </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="first-name"
+                    className="required-field block text-[20px] font-medium leading-6"
+                  >
+                    Address 1
+                  </label>
+                  <div className="mt-3">
+                    <input
+                      type="text"
+                      required
+                      className="block h-[48px] w-full rounded-md border-0 px-3.5 py-2 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:mr-1 placeholder:text-[15px] placeholder:text-[#64748B] sm:text-sm sm:leading-6"
+                      placeholder="input address 1"
+                      name="address1"
+                      value={formData.address1}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label
+                    htmlFor="first-name"
+                    className="not-required block text-[20px] font-medium leading-6"
+                  >
+                    Address 2
+                  </label>
+                  <div className="mt-3">
+                    <input
+                      type="text"
+                      className="block h-[48px] w-full rounded-md border-0 px-3.5 py-2 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:mr-1 placeholder:text-[15px] placeholder:text-[#64748B] sm:text-sm sm:leading-6"
+                      placeholder="input address 2"
+                      name="address2"
+                      value={formData.address2}
+                      onChange={handleChange}
+                    />
                   </div>
                 </div>
 

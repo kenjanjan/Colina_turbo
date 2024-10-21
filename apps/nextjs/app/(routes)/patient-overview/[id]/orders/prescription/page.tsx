@@ -133,8 +133,6 @@ const Prescription = () => {
     setIsErrorOpen(true);
   };
 
-  
-
   return (
     <div className="flex h-full w-full flex-col">
       <div className="flex-grow">
@@ -271,7 +269,6 @@ const Prescription = () => {
                     </td>
                     <td className="w-[200px]">
                       <ResuableTooltip text={ordersPrescription.p_name} />{" "}
-                     
                     </td>
                     <td className="w-[100px]">
                       <ResuableTooltip text={ordersPrescription.p_dosage} />{" "}
@@ -279,14 +276,16 @@ const Prescription = () => {
                     <td className="relative px-6 py-3">
                       <p
                         className={`flex w-[109px] items-center justify-center rounded-[30px] py-1 font-semibold ${
-                          ordersPrescription.p_status === "Active"
+                          ordersPrescription.p_status === "active"
                             ? "bg-[#CCFFDD] text-[#17C653]"
                             : ordersPrescription.p_status === "Discontinued"
                               ? "bg-[#FFE8EC] text-[#EF4C6A]" // Red color for Discontinued
                               : ""
                         }`}
                       >
-                        {ordersPrescription.p_status}{" "}
+                        {ordersPrescription.p_status === "active"
+                          ? "Active"
+                          : ordersPrescription.p_status}{" "}
                       </p>
                     </td>
                     <td className="relative py-3 pl-6">
