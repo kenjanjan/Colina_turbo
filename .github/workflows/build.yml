@@ -65,10 +65,22 @@ jobs:
               exit 1
             fi
 
-            # Run the new container
-            echo "Running new container..."
-            sudo docker run -d -p 3000:3000 --name $CONTAINER_NAME $IMAGE_NAME
-          EOF
+              echo "Running new container..."
+            sudo docker run -d -p 3000:3000 \
+              -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+              -e DB_TYPE="${{ secrets.DB_TYPE }}" \
+              -e PGHOST="${{ secrets.PGHOST }}" \
+              -e PGUSER="${{ secrets.PGUSER }}" \
+              -e PGPORT="${{ secrets.PGPORT }}" \
+              -e PGDATABASE="${{ secrets.PGDATABASE }}" \
+              -e PGPASSWORD="${{ secrets.PGPASSWORD }}" \
+              -e DB_SYNCHRONIZE="${{ secrets.DB_SYNCHRONIZE }}" \
+              -e FE_URL="${{ secrets.FE_URL }}" \
+              -e NEXT_USER="${{ secrets.NEXT_USER }}" \
+              -e NEXT_PASS="${{ secrets.NEXT_PASS }}" \
+              -e PORT="${{ secrets.PORT }}" \
+              --name $CONTAINER_NAME $IMAGE_NAME
+          EOF√
 
       # Build and Push Docker image for the frontend (Next.js)
       - name: Build and Push frontend Docker image
@@ -107,7 +119,11 @@ jobs:
               exit 1
             fi
 
-            # Run the new container
+            # Run the new container with environment variables from GitHub Secrets
             echo "Running new container..."
-            sudo docker run -d -p 3001:3001 --name $CONTAINER_NAME $IMAGE_NAME
+            sudo docker run -d -p 3001:3001 --name $CONTAINER_NAME \
+              -e NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
+              -e NEXT_PUBLIC_REMEMBER_TIME=${{ secrets.NEXT_PUBLIC_REMEMBER_TIME }} \
+              -e NEXT_PUBLIC_IDLE_TIMEOUT=${{ secrets.NEXT_PUBLIC_IDLE_TIMEOUT }} \
+              $IMAGE_NAME
           EOF
