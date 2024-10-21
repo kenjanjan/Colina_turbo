@@ -80,7 +80,7 @@ jobs:
               -e NEXT_PASS="${{ secrets.NEXT_PASS }}" \
               -e PORT="${{ secrets.PORT }}" \
               --name $CONTAINER_NAME $IMAGE_NAME
-          EOF√
+          EOF
 
       # Build and Push Docker image for the frontend (Next.js)
       - name: Build and Push frontend Docker image
