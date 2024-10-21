@@ -237,7 +237,7 @@ export default function PatientPage() {
   const handlePatientClick = (patientId: any) => {
     const lowercasePatientId = patientId.toLowerCase();
     setIsLoading(true);
-    router.replace(`/patient-overview/${lowercasePatientId}/adls`);
+    router.push(`/patient-overview/${lowercasePatientId}/adls`);
   };
 
   if (isLoading) {

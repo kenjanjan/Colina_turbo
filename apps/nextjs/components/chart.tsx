@@ -185,7 +185,7 @@ const Chart = () => {
       key: "id",
       value: patientId,
     });
-    router.replace(newUrl, { scroll: true }); // Update URL immediately
+    router.push(newUrl, { scroll: true }); // Update URL immediately
   };
 
   const onSuccess = () => {

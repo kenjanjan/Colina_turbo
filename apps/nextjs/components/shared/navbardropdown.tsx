@@ -62,7 +62,7 @@ const NavBarDropdown = forwardRef<HTMLDivElement, NavBarDropdownProps>(
             className=" rounded-[5px] hover:text-[#83C5CA] cursor-pointer pl-2 mb-4"
             onClick={() => {
               setAccessToken("");
-              router.replace("/login");
+              router.push("/login");
             }}
           >
             Sign Out

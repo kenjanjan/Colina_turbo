@@ -182,7 +182,7 @@ export default function PatientOverviewComponent({
 
     fetchData();
   }, [patientId, router, params, isSave]);
-  //removed router and params replaced with pathname for reduce icon reload
+  //removed router and params pushd with pathname for reduce icon reload
   console.log(patientData, "patientData");
 
   const pathParts = pathname.split("/");

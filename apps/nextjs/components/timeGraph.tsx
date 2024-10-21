@@ -177,7 +177,7 @@ const TimeGraph = ({
   console.log(patientWithMedicationLogsToday.length, "lenght");
   return (
     <div className="w-full">
-      <div className="h-full w-[320vh] overflow-hidden ">
+      <div className="h-full w-[320vh] overflow-hidden">
         <div className="relative">
           <div
             ref={lineRef}
@@ -201,7 +201,7 @@ const TimeGraph = ({
         </div>
 
         <table
-          className="time-graph-table h-full w-full "
+          className="time-graph-table h-full w-full"
           style={{ tableLayout: "fixed" }}
         >
           <thead>
@@ -209,7 +209,7 @@ const TimeGraph = ({
               {colData.map((col, index) => (
                 <th
                   key={col.time}
-                  className={`h-12 max-h-[20px] border-x border-b border-[#191D23] border-opacity-60 text-center chart-header ${
+                  className={`chart-header h-12 max-h-[20px] border-x border-b border-[#191D23] border-opacity-60 text-center ${
                     index !== colData.length - 1
                       ? "max-h-[20px] overflow-hidden text-ellipsis text-nowrap border-solid text-center"
                       : ""
@@ -233,7 +233,7 @@ const TimeGraph = ({
                     const logsInColumn = data.medicationlogs.filter(
                       (medLog: any) => {
                         const medicationLogsTime = parseInt(
-                          medLog.medicationLogsTime.replace(":", ""),
+                          medLog.medicationLogsTime.push(":", ""),
                         );
                         const colTime = parseInt(col.time);
 
@@ -315,9 +315,8 @@ const TimeGraph = ({
                                   {logsInColumn.some(
                                     (log: { medicationLogStatus: string }) =>
                                       log.medicationLogStatus !== "pending",
-                                  ) && 
-                                  (
-                                    <TooltipContent className="z-[9999] overflow-visible text-wrap bg-[#007C85] text-white rounded-[2.4px]">
+                                  ) && (
+                                    <TooltipContent className="z-[9999] overflow-visible text-wrap rounded-[2.4px] bg-[#007C85] text-white">
                                       <p className="relative z-[51] flex flex-col gap-2 break-words p-1 text-[15px]">
                                         {logsInColumn
                                           .filter(
@@ -376,7 +375,7 @@ const TimeGraph = ({
                                             ),
                                           )}
                                       </p>
-                                      <div className="absolute top-[-5px] left-1/2 z-[49] h-3 w-3 -translate-x-1/2 rotate-45 transform bg-[#007C85]"></div>
+                                      <div className="absolute left-1/2 top-[-5px] z-[49] h-3 w-3 -translate-x-1/2 rotate-45 transform bg-[#007C85]"></div>
                                     </TooltipContent>
                                   )}
                                 </Tooltip>
@@ -428,7 +427,7 @@ const TimeGraph = ({
                                       </div>
                                     </div>
                                   </DropdownMenuTrigger>
-                                  <DropdownMenuContent className="mt-1 border-none bg-[#007C85] text-white  rounded-[2.4px]">
+                                  <DropdownMenuContent className="mt-1 rounded-[2.4px] border-none bg-[#007C85] text-white">
                                     {logsInColumn
                                       .filter(
                                         (log: {
@@ -480,13 +479,17 @@ const TimeGraph = ({
                                               data-uuid={log.uuid}
                                               onClick={() => {
                                                 setMedicationLogUuid(log.uuid);
-                                                {log.medicationType === "PRN" ? isPRNModalOpen(true) : isAschModalOpen(true)}
+                                                {
+                                                  log.medicationType === "PRN"
+                                                    ? isPRNModalOpen(true)
+                                                    : isAschModalOpen(true);
+                                                }
                                                 setPatientName(
                                                   `${data.firstName} ${data.lastName}`,
                                                 );
                                                 setAschData(log);
                                               }}
-                                              className="cursor-pointer text-start font-semibold hover:text-[#020817] text-[15px]"
+                                              className="cursor-pointer text-start text-[15px] font-semibold hover:text-[#020817]"
                                             >
                                               {log.medicationLogsName} -{" "}
                                               {log.medicationType} -{" "}

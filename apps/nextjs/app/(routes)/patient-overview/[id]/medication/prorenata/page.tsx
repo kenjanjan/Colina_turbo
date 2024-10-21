@@ -169,7 +169,7 @@ const Prorenata = () => {
               <span
                 onClick={() => {
                   setIsLoading(true);
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/medication/scheduled`,
                   );
                 }}
@@ -270,7 +270,7 @@ const Prorenata = () => {
                   <td className="px-6 py-3">Dosage</td>
                   <td className="px-6 py-3">Notes</td>
                   <td className="relative">
-                  <div
+                    <div
                       className={`absolute ${filterStatusFromCheck?.length > 0 ? "right-[18px] top-[24px]" : "right-[44px] top-[24px]"}`}
                     >
                       <DropdownMenu
@@ -334,7 +334,7 @@ const Prorenata = () => {
                         />
                       </td>
                       <td className="px-6 py-3">
-                      <ResuableTooltip
+                        <ResuableTooltip
                           text={prnMed.medicationlogs_medicationLogsDosage}
                         />
                       </td>
@@ -343,9 +343,8 @@ const Prorenata = () => {
                         <ResuableTooltip text={prnMed.medicationlogs_notes} />
                       </td>
                       <td className="relative">
-                          <div
-                            className={`absolute right-[18px] top-[18px] flex h-[25px] w-[85px] items-center justify-center rounded-[30px] font-semibold ${
-
+                        <div
+                          className={`absolute right-[18px] top-[18px] flex h-[25px] w-[85px] items-center justify-center rounded-[30px] font-semibold ${
                             prnMed.medicationlogs_medicationLogStatus ===
                             "Given"
                               ? "bg-[#CCFFDD] text-[#17C653]" // Green color for Given

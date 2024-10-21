@@ -11,7 +11,7 @@ export default function Home() {
     if (getAccessToken()) {
       onNavigate(router, "/dashboard");
     } else {
-      router.replace("login");
+      router.push("login");
     }
   }, []);
 

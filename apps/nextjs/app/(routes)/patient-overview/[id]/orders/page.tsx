@@ -216,7 +216,7 @@ const Order = () => {
               <span className="slash">/</span>
               <span
                 onClick={() => {
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/orders/prescription`,
                   );
                 }}
@@ -227,7 +227,7 @@ const Order = () => {
               <span className="slash">/</span>
               <p
                 onClick={() => {
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/orders/dietary`,
                   );
                 }}
@@ -238,7 +238,7 @@ const Order = () => {
               <span className="slash">/</span>
               <p
                 onClick={() => {
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/orders/laboratory`,
                   );
                 }}

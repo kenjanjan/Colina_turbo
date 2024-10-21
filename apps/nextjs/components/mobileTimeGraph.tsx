@@ -176,7 +176,7 @@
 //                   const logsInColumn = data.filter(
 //                     (medLog: any) => {
 //                       const medicationLogsTime = parseInt(
-//                         medLog.medicationLogsTime.replace(":", "")
+//                         medLog.medicationLogsTime.push(":", "")
 //                       );
 //                       const colTime = parseInt(col.time);
 

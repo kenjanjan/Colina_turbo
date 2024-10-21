@@ -219,7 +219,7 @@ export default function FormsTab() {
               <span
                 onClick={() => {
                   setIsLoading(true);
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/forms/vaccination`,
                   );
                 }}
@@ -231,7 +231,7 @@ export default function FormsTab() {
               <span
                 onClick={() => {
                   setIsLoading(true);
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/forms/archived`,
                   );
                 }}
@@ -241,8 +241,8 @@ export default function FormsTab() {
               </span>
             </div>
             <div>
-            <p className="my-1 h-[23px] text-[15px] font-normal text-[#64748B]">
-            Total of {totalForms} logs
+              <p className="my-1 h-[23px] text-[15px] font-normal text-[#64748B]">
+                Total of {totalForms} logs
               </p>
             </div>
           </div>
@@ -327,14 +327,13 @@ export default function FormsTab() {
           <div>
             <table className="text-left rtl:text-right">
               <thead>
-              
                 <tr className="h-[70px] border-b text-[15px] font-semibold uppercase text-[#64748B]">
                   <td className="px-6 py-3">FORM UID</td>
                   <td className="px-6 py-3">NAME OF DOCUMENT</td>
                   <td className="px-6 py-3">DATE ISSUED</td>
                   <td className="px-6 py-3">NOTES</td>
                   <td className="relative px-6 py-3">
-                  <p className="absolute right-[114px]  top-[24px]">ACTION</p>
+                    <p className="absolute right-[114px] top-[24px]">ACTION</p>
                   </td>
                 </tr>
               </thead>
@@ -360,12 +359,13 @@ export default function FormsTab() {
                       <ResuableTooltip text={form.forms_nameOfDocument} />
                     </td>
                     <td className="px-6 py-3">
-                    {formatTableDate(form.forms_dateIssued)}</td>
+                      {formatTableDate(form.forms_dateIssued)}
+                    </td>
                     <td className="px-6 py-3">
                       <ResuableTooltip text={form.forms_notes} />
                     </td>
 
-                    <td className="py-6 relative ">
+                    <td className="relative py-6">
                       <p
                         onClick={() => {
                           isModalOpen(true);
@@ -373,18 +373,17 @@ export default function FormsTab() {
                           setFormViewData(form);
                         }}
                         className="absolute right-[146px] top-[11px]"
-
                       >
                         <Edit />
                       </p>
                       <p
-                          onClick={(e) => {
-                            setFormsUuid(form.forms_uuid);
-                            setConfirmArchived(true);
-                          }}
-                          className="absolute right-[40px] top-[11px]"
-                          >
-                          <Archive/>
+                        onClick={(e) => {
+                          setFormsUuid(form.forms_uuid);
+                          setConfirmArchived(true);
+                        }}
+                        className="absolute right-[40px] top-[11px]"
+                      >
+                        <Archive />
                       </p>
                     </td>
                   </tr>

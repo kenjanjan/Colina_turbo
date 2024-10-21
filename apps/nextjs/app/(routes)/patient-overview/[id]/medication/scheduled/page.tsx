@@ -180,7 +180,7 @@ const Scheduled = () => {
               <span
                 onClick={() => {
                   setIsLoading(true);
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/medication/prorenata`,
                   );
                 }}
@@ -196,7 +196,7 @@ const Scheduled = () => {
             </div>
           </div>
           <div className="flex gap-2">
-           <AddButton isModalOpen={isModalOpen} />
+            <AddButton isModalOpen={isModalOpen} />
             <PdfDownloader
               props={["Uuid", "Date", "Time", "Medication", "Notes", "Status"]}
               variant={"Scheduled Medication Table"}

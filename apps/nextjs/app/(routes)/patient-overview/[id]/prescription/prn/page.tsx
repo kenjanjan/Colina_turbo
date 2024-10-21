@@ -189,7 +189,7 @@ export default function prescription() {
                 className="bread"
                 onClick={() => {
                   setIsLoading(true);
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/prescription/scheduled`,
                   );
                 }}

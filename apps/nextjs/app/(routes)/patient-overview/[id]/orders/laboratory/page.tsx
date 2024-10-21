@@ -64,8 +64,6 @@ const Laboratory = () => {
     }
   };
 
-  
-
   const handleSortOptionClick = (option: string) => {
     setIsOpenSortedBy(false);
     if (option === "ADLs") {
@@ -180,7 +178,7 @@ const Laboratory = () => {
               <p className="slash">{">"}</p>
               <span
                 onClick={() => {
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/orders/prescription`,
                   );
                 }}
@@ -191,7 +189,7 @@ const Laboratory = () => {
               <span className="bread">/</span>
               <p
                 onClick={() => {
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/orders/dietary`,
                   );
                 }}

@@ -138,7 +138,7 @@ const Dietary = () => {
               <p className="slash">{">"}</p>
               <p
                 onClick={() => {
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/orders/prescription`,
                   );
                 }}
@@ -151,7 +151,7 @@ const Dietary = () => {
               <span className="slash">/</span>
               <p
                 onClick={() => {
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/orders/laboratory`,
                   );
                 }}

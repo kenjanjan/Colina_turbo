@@ -149,7 +149,7 @@ const Notes = () => {
               <span
                 onClick={() => {
                   setIsLoading(true);
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/notes/incident-report`,
                   );
                 }}
@@ -176,7 +176,7 @@ const Notes = () => {
               <p className="">Add</p>
             </button>
             <PdfDownloader
-              props={[ "Uuid", "Date", "Time", "Subject", "Notes"]}
+              props={["Uuid", "Date", "Time", "Subject", "Notes"]}
               variant={"Nurse's Note Table"}
               patientId={patientId}
             />
@@ -321,7 +321,6 @@ const Notes = () => {
           content={
             <NursenotesModalContent
               isModalOpen={isModalOpen}
-  
               uuid=""
               name=""
               isOpen={isOpen}

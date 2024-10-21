@@ -7,7 +7,9 @@ import { formatTableDate } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { fetchFormsByPatient,  updateFormsOfPatient,
+import {
+  fetchFormsByPatient,
+  updateFormsOfPatient,
 } from "@/app/api/forms-api/forms.api";
 import Pagination from "@/components/shared/pagination";
 import ResuableTooltip from "@/components/reusable/tooltip";
@@ -187,7 +189,7 @@ export default function ArchiveTab() {
               <p
                 onClick={() => {
                   setIsLoading(true);
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/forms`,
                   );
                 }}
@@ -199,7 +201,7 @@ export default function ArchiveTab() {
               <span
                 onClick={() => {
                   setIsLoading(true);
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/forms/vaccination`,
                   );
                 }}
@@ -217,7 +219,7 @@ export default function ArchiveTab() {
             </div>
           </div>
           <div className="flex gap-2">
-          <PdfDownloader
+            <PdfDownloader
               props={["Uuid", "Name_of_document", "Date_issued", "Notes"]}
               variant={"Archived Forms Table"}
               patientId={patientId}
@@ -286,64 +288,62 @@ export default function ArchiveTab() {
         </div>
 
         {/* START OF TABLE */}
-          <div>
-            <table className="text-left rtl:text-right">
-              <thead>
-              
-                <tr className="h-[70px] border-b text-[15px] font-semibold uppercase text-[#64748B]">
-                  <td className="px-6 py-3">FORM UID</td>
-                  <td className="px-6 py-3">NAME OF DOCUMENT</td>
-                  <td className="px-6 py-3">DATE ISSUED</td>
-                  <td className="px-6 py-3">NOTES</td>
-                  <td className="relative px-6 py-3">
+        <div>
+          <table className="text-left rtl:text-right">
+            <thead>
+              <tr className="h-[70px] border-b text-[15px] font-semibold uppercase text-[#64748B]">
+                <td className="px-6 py-3">FORM UID</td>
+                <td className="px-6 py-3">NAME OF DOCUMENT</td>
+                <td className="px-6 py-3">DATE ISSUED</td>
+                <td className="px-6 py-3">NOTES</td>
+                <td className="relative px-6 py-3">
                   <p className="absolute right-[80px] top-[24px]">Action</p>
+                </td>
+              </tr>
+            </thead>
+            <tbody className="h-[254px]">
+              {patientArchived.length === 0 && (
+                <tr>
+                  <td className="border-1 absolute flex w-[180vh] items-center justify-center py-5">
+                    <p className="text-center text-[15px] font-normal text-gray-700">
+                      No forms <br />
+                    </p>
                   </td>
                 </tr>
-              </thead>
-              <tbody className="h-[254px]">
-                {patientArchived.length === 0 && (
-                  <tr>
-                    <td className="border-1 absolute flex w-[180vh] items-center justify-center py-5">
-                      <p className="text-center text-[15px] font-normal text-gray-700">
-                        No forms <br />
-                      </p>
-                    </td>
-                  </tr>
-                )}
-                {patientArchived.map((form, index) => (
-                  <tr
-                    key={index}
-                    className="group h-[63px] border-b text-[15px] hover:bg-[#f4f4f4]"
-                  >
-                    <td className="px-6 py-3">
-                      <ResuableTooltip text={form.forms_uuid} />
-                    </td>
-                    <td className="px-6 py-3">
-                      <ResuableTooltip text={form.forms_nameOfDocument} />
-                    </td>
-                    <td className="px-6 py-3">
-                    {formatTableDate(form.forms_dateIssued)}</td>
-                    <td className="px-6 py-3">
-                      <ResuableTooltip text={form.forms_notes} />
-                    </td>
+              )}
+              {patientArchived.map((form, index) => (
+                <tr
+                  key={index}
+                  className="group h-[63px] border-b text-[15px] hover:bg-[#f4f4f4]"
+                >
+                  <td className="px-6 py-3">
+                    <ResuableTooltip text={form.forms_uuid} />
+                  </td>
+                  <td className="px-6 py-3">
+                    <ResuableTooltip text={form.forms_nameOfDocument} />
+                  </td>
+                  <td className="px-6 py-3">
+                    {formatTableDate(form.forms_dateIssued)}
+                  </td>
+                  <td className="px-6 py-3">
+                    <ResuableTooltip text={form.forms_notes} />
+                  </td>
 
-                    <td className="relative py-3 pl-6">
+                  <td className="relative py-3 pl-6">
                     <p
-                            onClick={() => {
-                              setFormsUuid(form.forms_uuid);
-                              setConfirmRestore(true);
-                            }}
-                            className="absolute right-[40px] top-[11px]"
-                            >
-                            <Restore/>
-                          </p>
-                        </td>
-                  </tr>
-
-                ))}
-              </tbody>
-            </table>
-        
+                      onClick={() => {
+                        setFormsUuid(form.forms_uuid);
+                        setConfirmRestore(true);
+                      }}
+                      className="absolute right-[40px] top-[11px]"
+                    >
+                      <Restore />
+                    </p>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
         {/* END OF TABLE */}
       </div>
@@ -355,7 +355,7 @@ export default function ArchiveTab() {
         setPageNumber={setPageNumber}
         setCurrentPage={setCurrentPage}
       />
-            {confirmRestore && (
+      {confirmRestore && (
         <Modal
           content={
             <ConfirmationModal

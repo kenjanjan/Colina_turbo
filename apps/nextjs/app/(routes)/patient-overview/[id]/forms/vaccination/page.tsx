@@ -141,7 +141,7 @@ export default function ArchiveTab() {
               <p
                 onClick={() => {
                   setIsLoading(true);
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/forms`,
                   );
                 }}
@@ -155,7 +155,7 @@ export default function ArchiveTab() {
               <span
                 onClick={() => {
                   setIsLoading(true);
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/forms/archived`,
                   );
                 }}

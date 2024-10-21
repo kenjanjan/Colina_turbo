@@ -154,7 +154,7 @@ export default function Surgeries() {
               <p
                 onClick={() => {
                   setIsLoading(true);
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/medical-history/allergies`,
                   );
                 }}
@@ -166,7 +166,7 @@ export default function Surgeries() {
               <p className="active">Surgeries</p>
             </div>
             <div>
-            <p className="my-1 h-[23px] text-[15px] font-normal text-[#64748B]">
+              <p className="my-1 h-[23px] text-[15px] font-normal text-[#64748B]">
                 Total of {totalSurgeries} Surgeries
               </p>
             </div>
@@ -247,7 +247,7 @@ export default function Surgeries() {
         <div>
           <table className="text-left rtl:text-right">
             <thead>
-            <tr className="h-[70px] border-b text-[15px] font-semibold uppercase text-[#64748B]">
+              <tr className="h-[70px] border-b text-[15px] font-semibold uppercase text-[#64748B]">
                 <td className="px-6 py-3">Surgery ID </td>
                 <td className="px-6 py-3">DATE OF SURGERY</td>
                 <td className="px-6 py-3">TYPE</td>

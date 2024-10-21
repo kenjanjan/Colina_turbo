@@ -6,9 +6,7 @@ import DropdownMenu from "@/components/dropdown-menu";
 import Edit from "@/components/shared/buttons/edit";
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import {
-  fetchAllergiesByPatient,
-} from "@/app/api/medical-history-api/allergies.api";
+import { fetchAllergiesByPatient } from "@/app/api/medical-history-api/allergies.api";
 import { SuccessModal } from "@/components/shared/success";
 import { ErrorModal } from "@/components/shared/error";
 import Modal from "@/components/reusable/modal";
@@ -79,10 +77,11 @@ const Allergies = () => {
     { label: "Notes", onClick: handleSortOptionClick },
   ]; // end of orderby & sortby function
   const [isOpen, setIsOpen] = useState(false);
-  const [filterSeverityFromCheck, setFilterSeverityFromCheck] = useState<string[]>([],);
+  const [filterSeverityFromCheck, setFilterSeverityFromCheck] = useState<
+    string[]
+  >([]);
   const handleSeverityUpdate = (checkedFilters: string[]) => {
     setFilterSeverityFromCheck(checkedFilters);
-
   };
   const isModalOpen = (isOpen: boolean) => {
     setIsOpen(isOpen);
@@ -125,7 +124,14 @@ const Allergies = () => {
     };
 
     fetchData();
-  }, [currentPage, sortOrder, sortBy, term, isSuccessOpen, filterSeverityFromCheck]);
+  }, [
+    currentPage,
+    sortOrder,
+    sortBy,
+    term,
+    isSuccessOpen,
+    filterSeverityFromCheck,
+  ]);
 
   console.log(allergyToEdit, "allergy uuid");
   if (isLoading) {
@@ -164,7 +170,7 @@ const Allergies = () => {
               <span
                 onClick={() => {
                   setIsLoading(true);
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/medical-history/surgeries`,
                   );
                 }}
@@ -174,8 +180,8 @@ const Allergies = () => {
               </span>
             </div>
             <div>
-            <p className="my-1 h-[23px] text-[15px] font-normal text-[#64748B]">
-            Total of {totalAllergies} Allergies
+              <p className="my-1 h-[23px] text-[15px] font-normal text-[#64748B]">
+                Total of {totalAllergies} Allergies
               </p>
             </div>
           </div>
@@ -200,8 +206,8 @@ const Allergies = () => {
           </div>
         </div>
         <div className="m:rounded-lg w-full items-center">
-        <div className="flex h-[75px] w-full items-center justify-between bg-[#F4F4F4]">
-        <form className="relative mr-5">
+          <div className="flex h-[75px] w-full items-center justify-between bg-[#F4F4F4]">
+            <form className="relative mr-5">
               {/* search bar */}
               <label className=""></label>
               <div className="flex">
@@ -261,42 +267,43 @@ const Allergies = () => {
         <div>
           <table className="text-left rtl:text-right">
             <thead>
-            <tr className="h-[70px] border-b text-[15px] font-semibold uppercase text-[#64748B]">
-            <td className="px-6 py-3">Allergy UID</td>
+              <tr className="h-[70px] border-b text-[15px] font-semibold uppercase text-[#64748B]">
+                <td className="px-6 py-3">Allergy UID</td>
                 <td className="px-6 py-3">Date</td>
                 <td className="px-6 py-3">Type</td>
                 <td className="px-6 py-3">Allergen</td>
                 <td className="relative">
-                    <div
-                      className={`absolute ${filterSeverityFromCheck?.length > 0 ? "top-[24px] left-[24px]" : "top-[24px] left-[24px]"}`}
-                    >
-                      <DropdownMenu
-                        options={optionsFilterSeverity.map(
-                          ({ label, onClick }) => ({
-                            label,
-                            onClick: () => {
-                              // onClick(label);
-                              // console.log("label", label);
-                            },
-                          }),
-                        )}
-                        open={isOpenFilterStatus}
-                        width={"165px"}
-                        statusUpdate={handleSeverityUpdate} // Pass the handler function
-                        checkBox={true}
-                        title={"Severity"}
-                        label={"Severity"}
-                      />
-                    </div>
-                  </td>                <td className="px-6 py-3">Reaction</td>
+                  <div
+                    className={`absolute ${filterSeverityFromCheck?.length > 0 ? "left-[24px] top-[24px]" : "left-[24px] top-[24px]"}`}
+                  >
+                    <DropdownMenu
+                      options={optionsFilterSeverity.map(
+                        ({ label, onClick }) => ({
+                          label,
+                          onClick: () => {
+                            // onClick(label);
+                            // console.log("label", label);
+                          },
+                        }),
+                      )}
+                      open={isOpenFilterStatus}
+                      width={"165px"}
+                      statusUpdate={handleSeverityUpdate} // Pass the handler function
+                      checkBox={true}
+                      title={"Severity"}
+                      label={"Severity"}
+                    />
+                  </div>
+                </td>{" "}
+                <td className="px-6 py-3">Reaction</td>
                 <td className="px-6 py-3">Notes</td>
                 <td className="relative px-6 py-3">
-                    <p className="absolute right-[80px] top-[24px]">Action</p>
-                  </td>             
-                   </tr>
+                  <p className="absolute right-[80px] top-[24px]">Action</p>
+                </td>
+              </tr>
             </thead>
             <tbody className="h-[254px]">
-            {patientAllergies.length === 0 && (
+              {patientAllergies.length === 0 && (
                 <h1 className="border-1 absolute flex items-center justify-center py-5">
                   <p className="text-center text-[15px] font-normal text-gray-700">
                     No Allergies Found <br />
@@ -312,7 +319,6 @@ const Allergies = () => {
                     <ResuableTooltip text={allergy.allergies_uuid} />
                   </td>
                   <td className="px-6 py-3">
-                   
                     {formatTableDate(allergy.allergies_createdAt)}
                   </td>
                   <td className="px-6 py-3">
@@ -351,14 +357,13 @@ const Allergies = () => {
                   </td>
 
                   <td className="relative py-3 pl-6">
-                  <p
+                    <p
                       onClick={() => {
                         isModalOpen(true);
                         setIsEdit(true);
                         setAllergyToEdit(allergy);
                       }}
                       className="absolute right-[40px] top-[11px]"
-
                     >
                       <Edit></Edit>
                     </p>

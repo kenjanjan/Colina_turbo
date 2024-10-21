@@ -147,7 +147,7 @@ const Notes = () => {
               <p className="slash">{">"}</p>
               <p
                 onClick={() => {
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/notes/nurses-notes`,
                   );
                   setIsLoading(true);
@@ -177,7 +177,7 @@ const Notes = () => {
               <p className="text-[15px]">Add</p>
             </button>
             <PdfDownloader
-              props={[ "Uuid", "Date", "Time", "Subject", "Notes"]}
+              props={["Uuid", "Date", "Time", "Subject", "Notes"]}
               variant={"Incident Report Table"}
               patientId={patientId}
             />

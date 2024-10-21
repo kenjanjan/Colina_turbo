@@ -953,7 +953,7 @@ export const DemographicModalContent = ({
                         <>
                           <p className="">File Attached.</p>
                           <p className="ml-1 text-blue-500 underline decoration-solid">
-                            Replace
+                            Push
                           </p>
                         </>
                       ) : (

@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import io from 'socket.io-client';
+import io from "socket.io-client";
 import { onNavigate } from "@/actions/navigation";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -52,12 +52,14 @@ export const Navbar = (
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [newNotificationLength, setNewNotificationLength] = useState(0);
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [isNotificationClicked,setIsNotificationClicked] = useState(0);
+  const [isNotificationClicked, setIsNotificationClicked] = useState(0);
   const userDetail: UserDetail = getUserDetail();
-  console.log(isNotificationClicked,"handleclickednotification")
-  const SOCKET_SERVER_URL = process.env.NEXT_PUBLIC_API_URL!.replace('https', 'wss');
+  console.log(isNotificationClicked, "handleclickednotification");
+  const SOCKET_SERVER_URL = process.env.NEXT_PUBLIC_API_URL!.replace(
+    "https",
+    "wss",
+  );
   useEffect(() => {
-    
     const fetchData = async () => {
       try {
         const notifications = await fetchNotifications(
@@ -66,13 +68,13 @@ export const Navbar = (
         );
         setNotifications(notifications);
         console.log(notifications, "notifications");
-      } catch (error:any) {
+      } catch (error: any) {
         console.error("Error fetching notifications:", error.message);
       }
     };
 
     const socket = io(SOCKET_SERVER_URL, {
-      transports: ['websocket','polling'],
+      transports: ["websocket", "polling"],
       withCredentials: true,
     });
     socket.on("connect", () => {
@@ -93,7 +95,7 @@ export const Navbar = (
     return () => {
       socket.disconnect();
     };
-  }, [newNotificationLength,isNotificationClicked]);
+  }, [newNotificationLength, isNotificationClicked]);
 
   // const globalSearchRef = useRef<HTMLInputElement>(null);
   const [searchData, setSearchData] = useState([
@@ -176,7 +178,7 @@ export const Navbar = (
 
   const handleTabClick = (url: string, isActive: boolean) => {
     setIsActive(isActive);
-    router.replace(url);
+    router.push(url);
   };
 
   const routes = [
@@ -392,7 +394,7 @@ export const Navbar = (
           width={213}
           height={50}
           className="h-[26px] w-[213px] cursor-pointer"
-          onClick={(event:any) => {
+          onClick={(event: any) => {
             if (pathname === "/dashboard") {
               event.preventDefault();
               // setIsLoading(true);
@@ -469,7 +471,7 @@ export const Navbar = (
                   className={`global-search w-full truncate rounded-sm bg-white p-[10px] shadow-md ${isAnimate ? "" : "animate-close"} ${
                     filteredPatient.length > 0
                       ? "top-[60px] h-[310px]"
-                      : "top-[60px] h-[69px] flex items-center justify-center cursor-default"
+                      : "top-[60px] flex h-[69px] cursor-default items-center justify-center"
                     // "bottom-[-200px] h-[60px] flex items-center justify-center"
                   }`}
                 >
@@ -607,13 +609,11 @@ export const Navbar = (
                         ))}
                       </div>
                     ) : (
-                   
-                        <div className="flex h-[69px] w-full flex-col items-center justify-center">
-                          <p className="uppercase text-[#64748B]">
-                            No Results Found
-                          </p>
-                        </div>
-                     
+                      <div className="flex h-[69px] w-full flex-col items-center justify-center">
+                        <p className="uppercase text-[#64748B]">
+                          No Results Found
+                        </p>
+                      </div>
                     )}
                   </>
                 </div>

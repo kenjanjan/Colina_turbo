@@ -145,7 +145,7 @@ const Prescription = () => {
               <p className="slash">/</p>
               <p
                 onClick={() => {
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/orders/dietary`,
                   );
                 }}
@@ -156,7 +156,7 @@ const Prescription = () => {
               <span className="slash">/</span>
               <p
                 onClick={() => {
-                  router.replace(
+                  router.push(
                     `/patient-overview/${patientId.toLowerCase()}/orders/laboratory`,
                   );
                 }}

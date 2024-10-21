@@ -83,7 +83,7 @@ const PatientCard = ({
   const handlePatientClick = (patientId: any, route: any) => {
     const lowercasePatientId = patientId.toLowerCase();
 
-    router.replace(
+    router.push(
       `/patient-overview/${lowercasePatientId}/${route === "overview" ? "medication/scheduled" : "patient-appointment"}`,
     );
   };
